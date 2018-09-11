@@ -1,0 +1,16 @@
+.. index:: radau_pseudospectral_phase.py
+
+.. _dymos.phases.optimizer_based.radau_pseudospectral_phase.py:
+
+radau_pseudospectral_phase.py
+-----------------------------
+
+.. automodule:: dymos.phases.optimizer_based.radau_pseudospectral_phase
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

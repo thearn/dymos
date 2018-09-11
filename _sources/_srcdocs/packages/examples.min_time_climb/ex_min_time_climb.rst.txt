@@ -1,0 +1,16 @@
+.. index:: ex_min_time_climb.py
+
+.. _dymos.examples.min_time_climb.ex_min_time_climb.py:
+
+ex_min_time_climb.py
+--------------------
+
+.. automodule:: dymos.examples.min_time_climb.ex_min_time_climb
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

@@ -1,0 +1,721 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Variables &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Constraints" href="constraints.html" />
+    <link rel="prev" title="Segments" href="segments.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="constraints.html" title="Constraints"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="segments.html" title="Segments"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_guide.html" >Dymos User’s Guide</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="phases.html" accesskey="U">Phases of a Trajectory</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Variables</a><ul>
+<li><a class="reference internal" href="#time">Time</a></li>
+<li><a class="reference internal" href="#states">States</a></li>
+<li><a class="reference internal" href="#controls-and-design-parameters">Controls and Design Parameters</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="segments.html"
+                        title="previous chapter">Segments</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="constraints.html"
+                        title="next chapter">Constraints</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user_guide/phases/variables.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="variables">
+<h1>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h1>
+<p>An Optimal Control problem in Dymos consists of the following variable types.</p>
+<div class="section" id="time">
+<h2>Time<a class="headerlink" href="#time" title="Permalink to this headline">¶</a></h2>
+<p>Optimal control problems in Dymos assume a system that is evolving in time.  State variables
+typically obey some ordinary differential equation that provides the derivative of the states
+w.r.t. time.</p>
+<p>Users can specify various options relating to time with the <cite>set_time_options</cite> method of Phase.</p>
+<p>In Dymos, time is characterized by two variables:</p>
+<ul class="simple">
+<li><cite>t_initial</cite> - The initial time of the phase</li>
+<li><cite>t_duration</cite> - The duration of the phase</li>
+</ul>
+<p>The bounds, scaling, and units of these variables may be set using <cite>set_time_options</cite>.  In addition,
+the user can specify that the initial time or duration of a phase is to be connected to some
+external output by specifying <cite>input_initial = True</cite> or <cite>input_duration = True</cite>.  In the case of
+fixed initial time or duration, or input initial time or duration, the optimization-related options
+have no effect and a warning will be raised if they are used.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="7%" />
+<col width="10%" />
+<col width="10%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Default</th>
+<th class="head">Acceptable Values</th>
+<th class="head">Acceptable Types</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>duration</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Value of the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-odd"><td>duration_adder</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Adder for the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-even"><td>duration_bounds</td>
+<td>(None, None)</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Tuple of (lower, upper) bounds for the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-odd"><td>duration_ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Unit-reference value for the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-even"><td>duration_ref0</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Zero-reference value for the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-odd"><td>duration_scaler</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Scalar for the duration of the integration variable across the phase.</td>
+</tr>
+<tr class="row-even"><td>fix_duration</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the  phase duration is not a design variable.</td>
+</tr>
+<tr class="row-odd"><td>fix_initial</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the initial value of time is not a design variable.</td>
+</tr>
+<tr class="row-even"><td>initial</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Value of the integration variable at the start of the phase.</td>
+</tr>
+<tr class="row-odd"><td>initial_adder</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Adder for the initial value of the integration variable.</td>
+</tr>
+<tr class="row-even"><td>initial_bounds</td>
+<td>(None, None)</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Tuple of (lower, upper) bounds for the integration variable at the start of the phase.</td>
+</tr>
+<tr class="row-odd"><td>initial_ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Unit-reference value for the initial value of the integration variable.</td>
+</tr>
+<tr class="row-even"><td>initial_ref0</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Zero-reference value for the initial value of the integration variable.</td>
+</tr>
+<tr class="row-odd"><td>initial_scaler</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Scalar for the initial value of the integration variable.</td>
+</tr>
+<tr class="row-even"><td>input_duration</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the phase duration (t_duration) is expected to be connected to an external output source.</td>
+</tr>
+<tr class="row-odd"><td>input_initial</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the initial value of time (t_initial) is expected to be connected to an external output source.</td>
+</tr>
+<tr class="row-even"><td>targets</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>targets in the ODE to which the integration variable is connected</td>
+</tr>
+<tr class="row-odd"><td>units</td>
+<td>s</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>Units for the integration variable</td>
+</tr>
+</tbody>
+</table>
+<p>Note: Options can be passed as keyword arguments at initialization.</p>
+</div>
+<div class="section" id="states">
+<h2>States<a class="headerlink" href="#states" title="Permalink to this headline">¶</a></h2>
+<p>States are variables that define the current condition of the system.  For instance, in trajectory
+optimization they are typically coordinates that define the position and velocity of the vehicle.
+They can also be things like component bulk temperatures or battery state-of-charge.  In most
+dynamic systems, states obey some ordinary differential equation.  As such, these are defined
+in an <cite>ODE</cite> object.</p>
+<p>At the phase level, we assume that states evolve continuously such that they can be modeled as a
+series of one or more polynomials.  The phase duration is broken into one or more <em>segments</em> on
+which each state (and each dynamic control) is modeled as a polynomial.  The order of the
+polynomial is specified using the <em>transcription_order</em> method.  In Dymos, the minimum state
+transcription order is 3.</p>
+<p>Users can specify bounds, scaling, and units of the state variables with the
+phase method <cite>set_state_options</cite>.  The following options are valid:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="4%" />
+<col width="6%" />
+<col width="8%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Default</th>
+<th class="head">Acceptable Values</th>
+<th class="head">Acceptable Types</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>adder</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Adder of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>continuity</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’, ‘dict’]</td>
+<td>Enforce continuity of state values at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>defect_ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Unit-reference value of the state defects at the collocation nodes. This option is invalid if opt=False.  If provide, this option overrides defect_scaler.</td>
+</tr>
+<tr class="row-odd"><td>defect_scaler</td>
+<td>1.0</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Scaler of the state variable defects at the collocation nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>desc</td>
+<td>&#160;</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>description of the state variable</td>
+</tr>
+<tr class="row-odd"><td>final_bounds</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Bounds on the value of the state at the end of the phase. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>fix_final</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’, ‘Iterable’]</td>
+<td>If True, the final value of this state is fixed and not a design variable. If the state variable has a non-scalar shape, this may be an iterable of bool for each index. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>fix_initial</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’, ‘Iterable’]</td>
+<td>If True, the initial value of this state is fixed and not a design variable. If the state variable has a non-scalar shape, this may be an iterable of bool for each index. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>initial_bounds</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Bounds on the value of the state at the start of the phase. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>lower</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Lower bound of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>name</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>name of ODE state variable</td>
+</tr>
+<tr class="row-odd"><td>opt</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If true, the values of this state are a design variable for the optimizer.  Otherwise it exists as an unconnectedinput.</td>
+</tr>
+<tr class="row-even"><td>rate_source</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>ODE-path to the derivative of the state variable</td>
+</tr>
+<tr class="row-odd"><td>ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Unit-reference value of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>ref0</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Zero-reference value of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>scaler</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Scaler of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>shape</td>
+<td>(1,)</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>shape of the state variable</td>
+</tr>
+<tr class="row-odd"><td>targets</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Targets in the ODE to which the state is connected</td>
+</tr>
+<tr class="row-even"><td>units</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>units in which the state variable is defined</td>
+</tr>
+<tr class="row-odd"><td>upper</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Upper bound of the state variable at the discretization nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>val</td>
+<td>0.0</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>Default value of the state variable at the discretization nodes</td>
+</tr>
+</tbody>
+</table>
+<p>Note: Options can be passed as keyword arguments at initialization.</p>
+<p>The Radau Pseudospectral and Gauss Lobatto phases types in Dymos use differential defects to
+approximate the evolution of the state variables with respect to time.  In addition to scaling
+the state values, scaling the defect constraints correctly is important to good performance of
+the collocation algorithms.  This is accomplished with the <cite>defect_scaler</cite> or <cite>defect_ref</cite> options.
+As the name implies, <cite>defect_scaler</cite> is multiplied by the defect value to provide the defect
+constraint value to the optimizer.  Alternatively, the user can specify <cite>defect_ref</cite>.  If provided,
+<cite>defect_ref</cite> overrides <cite>defect_scaler</cite> and is the value of the defect seen as <cite>1</cite> by the optimizer.</p>
+</div>
+<div class="section" id="controls-and-design-parameters">
+<h2>Controls and Design Parameters<a class="headerlink" href="#controls-and-design-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Typically, and ODE will have inputs that impact its values but, unlike states, don’t define the
+system itself.  Such inputs include things like throttle level, elevator deflection angle,
+or spring constants.</p>
+<p>Some of these inputs are values which we might expect to vary continuously throughout a trajectory,
+like an elevator deflection angle for instance.  When we allow the optimizer to determine the dynamic
+value of these parameters, we call them <em>controls</em>.</p>
+<p>Other inputs are values which impact the system but have one set value throughout the trajectory.
+We refer to these non-time-varying inputs as <em>design parameters</em>, since they typically involve
+parameters which define a system. Design parameters include things like the wingspan of a vehicle
+or the mass of a heatsink.  A design parameter can be declared using the phase method
+<cite>add_design_parameter</cite>.</p>
+<p>States are defined in the ODE.  Controls and design parameters, on the other hand, are optionally
+assigned to controllable parameters to the ODE.  Therefore, the method name to add a control to
+a phase is <cite>add_control</cite>. Valid options for controls and design parameters are as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="8%" />
+<col width="15%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Default</th>
+<th class="head">Acceptable Values</th>
+<th class="head">Acceptable Types</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>adder</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The adder of the control variable at the nodes. Thisoption is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>continuity</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’, ‘dict’]</td>
+<td>Enforce continuity of control values at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>desc</td>
+<td>&#160;</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The description of the control variable.</td>
+</tr>
+<tr class="row-odd"><td>fix_final</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the final value of this control is fixed and not a design variable. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>fix_initial</td>
+<td>False</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the initial value of this control is fixed and not a design variable. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>lower</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The lower bound of the control variable at the nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>name</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The name of ODE system parameter to be controlled.</td>
+</tr>
+<tr class="row-odd"><td>opt</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the control value will be a design variable for the optimization problem.  If False, allow the control to be connected externally.</td>
+</tr>
+<tr class="row-even"><td>rate2_continuity</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’, ‘dict’]</td>
+<td>Enforce continuity of control second derivatives at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>rate2_continuity_scaler</td>
+<td>1.0</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Scaler of the dimensionless rate continuity constraint at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>rate2_param</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>The parameter in the ODE to which the control 2nd derivative is connected.</td>
+</tr>
+<tr class="row-odd"><td>rate_continuity</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’, ‘dict’]</td>
+<td>Enforce continuity of control first derivatives in dimensionless time at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>rate_continuity_scaler</td>
+<td>1.0</td>
+<td>N/A</td>
+<td>[‘Number’]</td>
+<td>Scaler of the dimensionless rate continuity constraint at segment boundaries. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>rate_param</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>The parameter in the ODE to which the control rate is connected</td>
+</tr>
+<tr class="row-even"><td>ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The unit-reference value of the control variable at the nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>ref0</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The zero-reference value of the control variable at the nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>scaler</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The scaler of the control variable at the nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>shape</td>
+<td>(1,)</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>The shape of the control variable at each point in time.</td>
+</tr>
+<tr class="row-even"><td>targets</td>
+<td>[]</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Used to store target information for ShootingPhase.  Should not beset by the user in add_control.</td>
+</tr>
+<tr class="row-odd"><td>units</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The units in which the control variable is defined.</td>
+</tr>
+<tr class="row-even"><td>upper</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The upper bound of the control variable at the nodes. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>val</td>
+<td>[0.]</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘ndarray’, ‘Number’]</td>
+<td>The default value of the control variable at the control discretization nodes.</td>
+</tr>
+</tbody>
+</table>
+<p>Note: Options can be passed as keyword arguments at initialization.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="3%" />
+<col width="6%" />
+<col width="8%" />
+<col width="16%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Default</th>
+<th class="head">Acceptable Values</th>
+<th class="head">Acceptable Types</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>adder</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The adder of the design parameter. Thisoption is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>desc</td>
+<td>&#160;</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The description of the design parameter.</td>
+</tr>
+<tr class="row-even"><td>lower</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The lower bound of the design parameter. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>name</td>
+<td><strong>Required</strong></td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The name of ODE system parameter to be set via design parameter.</td>
+</tr>
+<tr class="row-even"><td>opt</td>
+<td>True</td>
+<td>N/A</td>
+<td>[‘bool’]</td>
+<td>If True, the control value will be a design variable for the optimization problem.  If False, allow the control to be connected externally.</td>
+</tr>
+<tr class="row-odd"><td>ref</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The unit-reference value of the design parameter. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>ref0</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The zero-reference value of the design parameter. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-odd"><td>scaler</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The scaler of the design parameter. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>shape</td>
+<td>(1,)</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>The shape of the design parameter.</td>
+</tr>
+<tr class="row-odd"><td>targets</td>
+<td>[]</td>
+<td>N/A</td>
+<td>[‘Iterable’]</td>
+<td>Used to store target information on a per-phase basis for trajectories.</td>
+</tr>
+<tr class="row-even"><td>units</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘str’]</td>
+<td>The units in which the design parameter is defined.</td>
+</tr>
+<tr class="row-odd"><td>upper</td>
+<td>None</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘Number’]</td>
+<td>The upper bound of the design parameter. This option is invalid if opt=False.</td>
+</tr>
+<tr class="row-even"><td>val</td>
+<td>[0.]</td>
+<td>N/A</td>
+<td>[‘Iterable’, ‘ndarray’, ‘Number’]</td>
+<td>The default value of the design parameter in the phase.</td>
+</tr>
+</tbody>
+</table>
+<p>Note: Options can be passed as keyword arguments at initialization.</p>
+<p>Like states, <em>dynamic</em> controls are modeled as polynomials within each segment.  When
+transcribed to a nonlinear programming problem, a dynamic control is given a unique value at each
+node within the phase.  Design parameters are modeled as a singular value that is broadcast to all
+nodes in the phase before the ODE function is evaluated.  If you can parameterize your problem in
+such a way that static controls can be used, performance may be significantly better due to the
+size of the NLP problem being much smaller, despite the fact that they reduce the <em>sparsity</em> of
+the jacobian matrix of the resulting optimal control problem.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The order of a dynamic control polynomial in a segment is one less than the state
+transcription order (i.e. a dynamic control in a phase with <cite>transcription_order=3</cite> will
+be represented by a second-order polynomial.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="constraints.html" title="Constraints"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="segments.html" title="Segments"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_guide.html" >Dymos User’s Guide</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="phases.html" >Phases of a Trajectory</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+.. index:: progress_bar_observer.py
+
+.. _dymos.utils.simulation.progress_bar_observer.py:
+
+progress_bar_observer.py
+------------------------
+
+.. automodule:: dymos.utils.simulation.progress_bar_observer
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

@@ -1,0 +1,16 @@
+.. index:: ex_ssto_earth.py
+
+.. _dymos.examples.ssto.ex_ssto_earth.py:
+
+ex_ssto_earth.py
+----------------
+
+.. automodule:: dymos.examples.ssto.ex_ssto_earth
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

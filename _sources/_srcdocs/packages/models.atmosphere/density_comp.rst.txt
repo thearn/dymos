@@ -1,0 +1,16 @@
+.. index:: density_comp.py
+
+.. _dymos.models.atmosphere.density_comp.py:
+
+density_comp.py
+---------------
+
+.. automodule:: dymos.models.atmosphere.density_comp
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

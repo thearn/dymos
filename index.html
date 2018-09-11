@@ -1,0 +1,192 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dymos: Open-source Optimal Control for Multidisciplinary Systems &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Dymos User’s Guide" href="user_guide/user_guide.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="user_guide/user_guide.html" title="Dymos User’s Guide"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">dymos 0.11.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Dymos: Open-source Optimal Control for Multidisciplinary Systems</a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#source-docs">Source Docs</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="user_guide/user_guide.html"
+                        title="next chapter">Dymos User’s Guide</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="project-open-source-optimal-control-for-multidisciplinary-systems">
+<h1>Dymos: Open-source Optimal Control for Multidisciplinary Systems<a class="headerlink" href="#project-open-source-optimal-control-for-multidisciplinary-systems" title="Permalink to this headline">¶</a></h1>
+<p>Dymos is an open-source tool for solving optimal control problems involving multidisplinary systems.
+It is built on top of the <a class="reference external" href="https://github.com/openmdao/blue">OpenMDAO framework</a>.
+The goal of Dymos is to allow users to solve optimal control problems using a variety of methods.
+Presently, Dymos supports optimal control via the following techniques:</p>
+<ul class="simple">
+<li>Gauss-Lobatto collocation method <a class="reference internal" href="#conwayherman1996" id="id1">[ConwayHerman1996]</a></li>
+<li>Radau-pseudospectral method <a class="reference internal" href="#garg2009" id="id2">[Garg2009]</a></li>
+</ul>
+<p>More direct optimal control transcriptions may be added to Dymos in the future.</p>
+</div>
+<div class="section" id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/user_guide.html">Dymos User’s Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/optimal_control.html">Optimal Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/defining_odes.html">Defining ODEs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/phases/phases.html">Phases of a Trajectory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/segments.html">Segments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/variables.html">Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/constraints.html">Constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/objective.html">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/transcriptions/transcriptions.html">Transcriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/phases/simulate/simulate.html">Simulating ODEs with Scipy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/phases/transcriptions/general_linear_methods.html">General Linear Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/trajectories.html">Organizing Phases into Trajectories</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/brachistochrone.html">Brachistochrone: A simple optimal control example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/simultaneous_derivs.html">Brachistochrone with Simultaneous Derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/double_integrator.html">Double Integrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/min_time_climb.html">Supersonic Interceptor Minimum Time Climb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/ssto_earth.html">SSTO Earth Launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/ssto_moon.html">SSTO Lunar Ascent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/ssto_moon_linear_tangent.html">SSTO Lunar Ascent with Linear Tangent Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/commercial_aircraft.html">Commercial Aircraft Range Maximization by Differential Inclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/multi_phase_cannonball.html">Multi-Phase Cannonball</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/two_burn_orbit_raise.html">Two-Burn Orbit Raise</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="references/references.html">References</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="source-docs">
+<h1>Source Docs<a class="headerlink" href="#source-docs" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_srcdocs/index.html">Source Docs</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h1>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h1>
+<table class="docutils citation" frame="void" id="conwayherman1996" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[ConwayHerman1996]</a></td><td>﻿Herman, Albert L, and Bruce A Conway. “Direct Optimization Using Collocation Based on High-Order Gauss-Lobatto Quadrature Rules.” Journal of Guidance, Control, and Dynamics 19.3 (1996): 592–599.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="garg2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Garg2009]</a></td><td>﻿Garg, Divya et al. “Direct Trajectory Optimization and Costate Estimation of General Optimal Control Problems Using a Radau Pseudospectral Method.” American Institute of Aeronautics and Astronautics, 2009.</td></tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="user_guide/user_guide.html" title="Dymos User’s Guide"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">dymos 0.11.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+.. index:: trajectory_simulation_results.py
+
+.. _dymos.utils.simulation.trajectory_simulation_results.py:
+
+trajectory_simulation_results.py
+--------------------------------
+
+.. automodule:: dymos.utils.simulation.trajectory_simulation_results
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

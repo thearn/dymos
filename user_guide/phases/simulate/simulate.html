@@ -1,0 +1,353 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Simulating ODEs with Scipy &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="General Linear Methods" href="../transcriptions/general_linear_methods.html" />
+    <link rel="prev" title="Radau Pseudospectral Method" href="../transcriptions/radau-pseudospectral.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../transcriptions/general_linear_methods.html" title="General Linear Methods"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../transcriptions/radau-pseudospectral.html" title="Radau Pseudospectral Method"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../user_guide.html" >Dymos User’s Guide</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../phases.html" accesskey="U">Phases of a Trajectory</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Simulating ODEs with Scipy</a><ul>
+<li><a class="reference internal" href="#simulate-call-signature"><cite>simulate</cite> call signature</a></li>
+<li><a class="reference internal" href="#example-using-simulate-to-check-the-solution">Example:  Using <cite>simulate</cite> to check the solution</a></li>
+<li><a class="reference internal" href="#example-loading-simulation-results-from-recorded-data">Example:  Loading simulation results from recorded data</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../transcriptions/radau-pseudospectral.html"
+                        title="previous chapter">Radau Pseudospectral Method</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../transcriptions/general_linear_methods.html"
+                        title="next chapter">General Linear Methods</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/user_guide/phases/simulate/simulate.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="simulating-odes-with-scipy">
+<h1>Simulating ODEs with Scipy<a class="headerlink" href="#simulating-odes-with-scipy" title="Permalink to this headline">¶</a></h1>
+<p>Dymos phases offer the ability to simulate the ODE using the current solution using the
+methods available in <cite>scipy.integrate</cite>.  This has a variety of useful applications.</p>
+<p>First, propagating the ODE as an initial value problem with a given control time-history can be
+useful in demonstrating that the various components in the ODE have been coded correctly.  An ODE system
+that can not properly propagate its dynamics, when formulated as an IVP, has virtually no chance of
+successfully solving an optimal control problem.</p>
+<p>Secondly, the implicit integration techniques employed in Dymos often benefit from a reasonable
+initial guess to the time-histories of the states and controls.  By providing a numerically
+integrated time-history of the states in the system, the collocation defect constraints should all
+be satisfied at the driver’s starting point.  In fact, if any defect constraints are initially
+unsatisfied here it is an indication that the phase has an insufficient grid (the number of
+segments is too low or the transcription order of the segments is too low).  The ability to start
+from numerically propagated solutions is particularly useful for the high-order Gauss-Lobatto
+method, where invalid dynamics at the discretization nodes can lead to wildly inaccurate state
+values at the collocation nodes due to the interpolation step.</p>
+<p>Finally, the accuracy of implicit integration schemes is a function of the collocation grid (the
+number of segments and the polynomial order on each segment).  In this regard, using simulate
+with a variable step integrator can be seen as a “truth model” of sorts.  If the state values at
+the discrete points used in the collocation technique overlaps the explicitly integrated solution,
+it provides confidence in the accuracy of the implicit solution.  If the solutions diverge over time
+or simply fail to match at certain points, it’s an indication that grid refinement is necessary.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The simulate method of Phase should <strong>not</strong> be used in an optimization context.  The purpose
+of the phase transcriptions used in Dymos is to provide analytic derivatives <strong>across</strong> the
+integration.  This capability is important when applying gradient-based optimization.  For
+instance, the influence of a control value at a particular time on the objective function can
+be quite small.  If this influence is small, it can easily be drowned out by
+errors when trying to apply finite differencing across the integration, leading the optimizer
+to converge slowly or, worse, not converge at all.  Using analytic derivatives typically
+allows convergence in fewer iterations.</p>
+</div>
+<div class="section" id="simulate-call-signature">
+<h2><cite>simulate</cite> call signature<a class="headerlink" href="#simulate-call-signature" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt>
+<code class="descclassname">OptimizerBasedPhaseBase.</code><code class="descname">simulate</code><span class="sig-paren">(</span><em>times='all'</em>, <em>integrator='vode'</em>, <em>integrator_params=None</em>, <em>observer=None</em>, <em>record_file=None</em>, <em>record=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/phases/optimizer_based/optimizer_based_phase_base.html#OptimizerBasedPhaseBase.simulate"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Integrate the current phase using the current values of time, states, and controls.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>times</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or sequence</span></dt>
+<dd><p class="first last">The times at which the observing function will be called, and outputs will be saved.
+If given as a string, it must be a valid node subset name.
+If given as a sequence, it directly provides the times at which output is provided,
+<em>in addition to the segment boundaries</em>.</p>
+</dd>
+<dt><strong>integrator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The integrator to be used by scipy.ode.  This is one of:
+‘vode’, ‘lsoda’, ‘dopri5’, or ‘dopri853’.</p>
+</dd>
+<dt><strong>integrator_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Parameters specific to the chosen integrator.  See the scipy.integrate.ode
+documentation for details.</p>
+</dd>
+<dt><strong>observer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, str, or None</span></dt>
+<dd><p class="first last">A callable function to be called at the specified timesteps in
+<cite>integrate_times</cite>.  This can be used to record the integrated trajectory.
+If ‘progress-bar’, a ProgressBarObserver will be used, which outputs the simulation
+process to the screen as a ProgressBar.
+If ‘stdout’, a StdOutObserver will be used, which outputs all variables
+in the model to standard output by default.
+If None, no observer will be called.</p>
+</dd>
+<dt><strong>record_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or None</span></dt>
+<dd><p class="first last">A string given the name of the recorded file to which the results of the explicit
+simulation should be saved.  If None, automatically save to ‘&lt;phase_name&gt;_sim.db’.</p>
+</dd>
+<dt><strong>record</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If True (default), save the explicit simulation results to the file specified
+by record_file.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>results</strong> <span class="classifier-delimiter">:</span> <span class="classifier">PhaseSimulationResults object</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="example-using-simulate-to-check-the-solution">
+<h2>Example:  Using <cite>simulate</cite> to check the solution<a class="headerlink" href="#example-using-simulate-to-check-the-solution" title="Permalink to this headline">¶</a></h2>
+<p>Consider the single-stage-to-orbit (SSTO) example.  In the following code, we solve the problem.
+We then call simulate and capture the returned <cite>SimulationOutput</cite> object as <cite>exp_out</cite>.</p>
+<p>The SimulationObject supports the same <cite>get_values</cite> interface as the Phase class, so plotting
+the collocation and explicit simulation results for comparison is easy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">openmdao.utils.assert_utils</span> <span class="kn">import</span> <span class="n">assert_rel_error</span>
+
+<span class="kn">import</span> <span class="nn">dymos.examples.ssto.ex_ssto_earth</span> <span class="kn">as</span> <span class="nn">ex_ssto_earth</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">ex_ssto_earth</span><span class="o">.</span><span class="n">ssto_earth</span><span class="p">(</span><span class="s1">&#39;gauss-lobatto&#39;</span><span class="p">,</span> <span class="n">num_seg</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">transcription_order</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                             <span class="n">top_level_jacobian</span><span class="o">=</span><span class="s1">&#39;csc&#39;</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+<span class="n">phase</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phase0</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_initial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">150.0</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.15E5</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.85E5</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:vx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">7796.6961</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:vy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0E-6</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mi">117000</span><span class="p">,</span> <span class="mi">1163</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.controls:theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.76</span><span class="p">],</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;control_input&#39;</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">run_driver</span><span class="p">()</span>
+
+<span class="n">exp_out</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_duration&#39;</span><span class="p">],</span> <span class="mi">100</span><span class="p">))</span>
+
+<span class="c1">##############################</span>
+<span class="c1"># quick check of the results</span>
+<span class="c1">##############################</span>
+<span class="k">print</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># check if the boundary value constraints were satisfied in the simulation</span>
+<span class="k">print</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="c1"># there is a small amount of discretization error here</span>
+<span class="k">print</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1">########################</span>
+<span class="c1"># plot the results</span>
+<span class="c1">########################</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span> <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;solution&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span> <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;simulated&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x, m&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y, m&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;results for flat_earth_without_aero&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;solution&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span><span class="p">),</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;simulated&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time, s&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\theta$, deg&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+           <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_x$ solution&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+           <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_x$ simulated&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+           <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_y$ solution&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+           <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_y$ simulated&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;downrange, m&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;altitude, m&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">axarr</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_x$ solution&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">),</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_x$ simulated&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">),</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_y$ solution&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+           <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;$v_y$ simulated&#39;</span><span class="p">)</span>
+
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time, s&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;velocity, m/s&#39;</span><span class="p">)</span>
+<span class="n">axarr</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="cell border-box-sizing code_cell rendered"><div class="output_area"><pre>
+Using tolerance: 1e-15
+Most common number of zero entries (78057 of 80591) repeated 6 times out of 11 tolerances tested.
+
+Full total jacobian was computed 3 times, taking 0.184790 seconds.
+Total jacobian shape: (203, 397) 
+
+Optimization terminated successfully.    (Exit mode 0)
+            Current function value: 1.435743733047341
+            Iterations: 117
+            Function evaluations: 121
+            Gradient evaluations: 117
+Optimization Complete
+-----------------------------------
+simulating  phase0
+phase0 simulation complete
+[185000.]
+[7796.6961]
+[-1.3148027e-18]
+[184988.1389896]
+[7789.13169288]
+[8.54864566]
+</pre></div></div><div class="figure">
+<img alt="../../../_images/doc_plot_8.png" src="../../../_images/doc_plot_8.png" />
+</div>
+</div>
+<div class="section" id="example-loading-simulation-results-from-recorded-data">
+<h2>Example:  Loading simulation results from recorded data<a class="headerlink" href="#example-loading-simulation-results-from-recorded-data" title="Permalink to this headline">¶</a></h2>
+<p>Note that the simulate method can also save an OpenMDAO recording file of the explicitly integrated
+solution.  We can load data from a previous explicit simulation by instantiating the
+PhaseSimulationResults with the filename as its only argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exp_out</span> <span class="o">=</span> <span class="n">load_simulation_results</span><span class="p">(</span><span class="s1">&#39;my_simulation.db&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../transcriptions/general_linear_methods.html" title="General Linear Methods"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../transcriptions/radau-pseudospectral.html" title="Radau Pseudospectral Method"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../user_guide.html" >Dymos User’s Guide</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../phases.html" >Phases of a Trajectory</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

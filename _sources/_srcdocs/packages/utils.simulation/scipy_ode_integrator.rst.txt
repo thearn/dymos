@@ -1,0 +1,16 @@
+.. index:: scipy_ode_integrator.py
+
+.. _dymos.utils.simulation.scipy_ode_integrator.py:
+
+scipy_ode_integrator.py
+-----------------------
+
+.. automodule:: dymos.utils.simulation.scipy_ode_integrator
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

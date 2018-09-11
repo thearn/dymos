@@ -1,0 +1,16 @@
+.. index:: ex_double_integrator.py
+
+.. _dymos.examples.double_integrator.ex_double_integrator.py:
+
+ex_double_integrator.py
+-----------------------
+
+.. automodule:: dymos.examples.double_integrator.ex_double_integrator
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

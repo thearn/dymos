@@ -1,0 +1,16 @@
+.. index:: ex_brachistochrone.py
+
+.. _dymos.examples.brachistochrone.ex_brachistochrone.py:
+
+ex_brachistochrone.py
+---------------------
+
+.. automodule:: dymos.examples.brachistochrone.ex_brachistochrone
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

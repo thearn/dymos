@@ -1,0 +1,8 @@
+dymos.examples.finite_burn_orbit_raise
+--------------------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples.finite_burn_orbit_raise/ex_two_burn_orbit_raise
+    examples.finite_burn_orbit_raise/finite_burn_eom

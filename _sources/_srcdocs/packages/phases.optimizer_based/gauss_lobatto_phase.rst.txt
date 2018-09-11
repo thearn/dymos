@@ -1,0 +1,16 @@
+.. index:: gauss_lobatto_phase.py
+
+.. _dymos.phases.optimizer_based.gauss_lobatto_phase.py:
+
+gauss_lobatto_phase.py
+----------------------
+
+.. automodule:: dymos.phases.optimizer_based.gauss_lobatto_phase
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

@@ -1,0 +1,292 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>General Linear Methods &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Organizing Phases into Trajectories" href="../../trajectories.html" />
+    <link rel="prev" title="Simulating ODEs with Scipy" href="../simulate/simulate.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../trajectories.html" title="Organizing Phases into Trajectories"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../simulate/simulate.html" title="Simulating ODEs with Scipy"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../user_guide.html" accesskey="U">Dymos User’s Guide</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">General Linear Methods</a><ul>
+<li><a class="reference internal" href="#formulations">Formulations</a></li>
+<li><a class="reference internal" href="#list-of-available-methods">List of available methods</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../simulate/simulate.html"
+                        title="previous chapter">Simulating ODEs with Scipy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../trajectories.html"
+                        title="next chapter">Organizing Phases into Trajectories</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/user_guide/phases/transcriptions/general_linear_methods.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="general-linear-methods">
+<h1>General Linear Methods<a class="headerlink" href="#general-linear-methods" title="Permalink to this headline">¶</a></h1>
+<p>The general linear methods (GLM) equations unify all linear multistep methods
+(e.g., Adams–Bashforth) and all Runge–Kutta methods (e.g., RK4, Gauss–Legendre)
+using a single equation <a class="reference internal" href="#butcher2006" id="id1">[Butcher2006]</a>.
+The <code class="code docutils literal notranslate"><span class="pre">GLMPhase</span></code> in Dymos implements the GLM equations, enabling a large library of methods
+to be available (currently only Runge–Kutta methods are implemented).
+The use of the GLM equations has enabled this large library to be implemented,
+even with the requirement for derivatives across the integrator
+so that we can use a gradient-based optimizer <a class="reference internal" href="#hwangmunster2018" id="id2">[HwangMunster2018]</a>.</p>
+<div class="section" id="formulations">
+<h2>Formulations<a class="headerlink" href="#formulations" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="code docutils literal notranslate"><span class="pre">GLMPhase</span></code> has three formulations (i.e., solution approaches) available:
+optimizer-based, solver-based <a class="reference internal" href="#hwangmunster2018" id="id3">[HwangMunster2018]</a>, and time-marching.
+The difference between these formulations is in how they solve the ODE,
+i.e., how they compute the state variables being integrated.
+In general, the solver-based formulation is the best (fastest) option of the three,
+but in stiff ODEs, the time-marching formulation with an implicit Runge–Kutta scheme
+is the most reliable.</p>
+<ol class="arabic simple">
+<li>Optimizer-based formulation.</li>
+</ol>
+<blockquote>
+<div>In the optimizer-based formulation, the ODE state variables are included in the
+optimization problem as design variables and the relevant Runge–Kutta equations
+are imposed as optimization constraints.
+Therefore, the responsibility for solving the ODE is assigned to the optimizer.
+This formulation is typically slower than the solver-based formulation,
+and it can suffer from convergence problems with stiff ODEs.</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Solver-based formulation.</li>
+</ol>
+<blockquote>
+<div>In the solver-based formulation, the ODE state variables are treated as the unknowns
+of a nonlinear system of equations. The entire time history is then solved for at once,
+using a block Gauss–Seidel iteration, as explained by Hwang and Munster <a class="reference internal" href="#hwangmunster2018" id="id4">[HwangMunster2018]</a>.
+In most problems, this formulation is the most efficient of the three because it benefits from
+vectorization across time instances (which the time-marching formulation does not have) and the
+fact that the block Gauss–Seidel solver converges in a very small number of iterations.
+The primary disadvantage of this formulation is that it does not always converge when the time
+interval of the integration is too large and with stiff ODEs.</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Time-marching formulation.</li>
+</ol>
+<blockquote>
+<div>In the time-marching formulation, the ODE state variables are integrated one time step at a time,
+as is typically done in solving ODEs in general.
+The advantage of this approach is that time-marching with an implicit Runge–Kutta scheme
+is the most reliable for stiff ODEs.
+The disadvantage is that for non-stiff ODEs, all three formulations converge, but time-marching
+is the slowest because of the lack of vectorization—the typical cost of a Python for loop.</div></blockquote>
+</div>
+<div class="section" id="list-of-available-methods">
+<h2>List of available methods<a class="headerlink" href="#list-of-available-methods" title="Permalink to this headline">¶</a></h2>
+<p>Because the <code class="code docutils literal notranslate"><span class="pre">GLMPhase</span></code> is implemented using the GLM equations, adding a new Runge–Kutta
+method is simple and quick, which has allowed a large library to be implemented.
+For recommendations on which method to use, the reader is referred to
+Hwang and Munster <a class="reference internal" href="#hwangmunster2018" id="id5">[HwangMunster2018]</a>
+who show a Pareto fronts with error and computation time as the two axes for a set of test problems.
+The list of available methods is given below.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="68%" />
+<col width="20%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">‘method_name’ in GLMPhase</th>
+<th class="head">Type</th>
+<th class="head">Order</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">ForwardEuler</span></code></td>
+<td>Explicit</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">BackwardEuler</span></code></td>
+<td>Implicit</td>
+<td>1</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">ExplicitMidpoint</span></code></td>
+<td>Explicit</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">ImplicitMidpoint</span></code></td>
+<td>Implicit</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">KuttaThirdOrder</span></code></td>
+<td>Explicit</td>
+<td>3</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">RK4</span></code></td>
+<td>Explicit</td>
+<td>4</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">RK6</span></code></td>
+<td>Explicit</td>
+<td>6</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">RalstonsMethod</span></code></td>
+<td>Explicit</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">HeunsMethod</span></code></td>
+<td>Explicit</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">GaussLegendre2</span></code></td>
+<td>Implicit</td>
+<td>2</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">GaussLegendre4</span></code></td>
+<td>Implicit</td>
+<td>4</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">GaussLegendre6</span></code></td>
+<td>Implicit</td>
+<td>6</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">Lobatto2</span></code></td>
+<td>Implicit</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">Lobatto4</span></code></td>
+<td>Implicit</td>
+<td>4</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">RadauI3</span></code></td>
+<td>Implicit</td>
+<td>3</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">RadauI5</span></code></td>
+<td>Implicit</td>
+<td>5</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">RadauII3</span></code></td>
+<td>Implicit</td>
+<td>3</td>
+</tr>
+<tr class="row-odd"><td><code class="code docutils literal notranslate"><span class="pre">RadauII5</span></code></td>
+<td>Implicit</td>
+<td>5</td>
+</tr>
+<tr class="row-even"><td><code class="code docutils literal notranslate"><span class="pre">Trapezoidal</span></code></td>
+<td>Implicit</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils citation" frame="void" id="butcher2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Butcher2006]</a></td><td>Butcher, J. C., “General linear methods,” Acta Numerica, Vol. 15, 2006, pp. 157–256.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="hwangmunster2018" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[HwangMunster2018]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>, <a class="fn-backref" href="#id4">3</a>, <a class="fn-backref" href="#id5">4</a>)</em> Hwang, John T, and Drayton Munster. “Solution of Ordinary Differential Equations in Gradient-Based Multidisciplinary Design Optimization.” 2018 AIAA/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference. American Institute of Aeronautics and Astronautics, 2018. Web. AIAA SciTech Forum.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../trajectories.html" title="Organizing Phases into Trajectories"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../simulate/simulate.html" title="Simulating ODEs with Scipy"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../user_guide.html" >Dymos User’s Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,286 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dymos.utils.simulation.simulate_phase &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dymos.utils.simulation.simulate_phase</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">iteritems</span><span class="p">,</span> <span class="n">string_types</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">izip</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">izip</span> <span class="o">=</span> <span class="nb">zip</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">ndarray</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ScipyODEIntegrator</span><span class="p">,</span> <span class="n">PhaseSimulationResults</span>
+<span class="kn">from</span> <span class="nn">..interpolate</span> <span class="k">import</span> <span class="n">LagrangeBarycentricInterpolant</span>
+
+
+<div class="viewcode-block" id="simulate_phase"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/simulate_phase.html#dymos.utils.simulation.simulate_phase.simulate_phase">[docs]</a><span class="k">def</span> <span class="nf">simulate_phase</span><span class="p">(</span><span class="n">phase_name</span><span class="p">,</span> <span class="n">ode_class</span><span class="p">,</span> <span class="n">time_options</span><span class="p">,</span> <span class="n">state_options</span><span class="p">,</span> <span class="n">control_options</span><span class="p">,</span>
+                   <span class="n">design_parameter_options</span><span class="p">,</span> <span class="n">input_parameter_options</span><span class="p">,</span>
+                   <span class="n">time_values</span><span class="p">,</span> <span class="n">state_values</span><span class="p">,</span> <span class="n">control_values</span><span class="p">,</span>
+                   <span class="n">design_parameter_values</span><span class="p">,</span> <span class="n">input_parameter_values</span><span class="p">,</span> <span class="n">ode_init_kwargs</span><span class="p">,</span> <span class="n">grid_data</span><span class="p">,</span>
+                   <span class="n">times</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">record_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integrator</span><span class="o">=</span><span class="s1">&#39;vode&#39;</span><span class="p">,</span>
+                   <span class="n">integrator_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides a way of simulating a phase that can be called in a multiprocessing pool.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phase_name : str</span>
+<span class="sd">        The name of the phase being simulated.</span>
+<span class="sd">    ode_class : object</span>
+<span class="sd">        The OpenMDAO system class providing the ODE to be simulated.</span>
+<span class="sd">    time_options : OptionsDictionary</span>
+<span class="sd">        The time options for the phase being simulated.</span>
+<span class="sd">    state_options : OptionsDictionary</span>
+<span class="sd">        The state options for the phase being simulated.</span>
+<span class="sd">    control_options : OptionsDictionary</span>
+<span class="sd">        The control options for the phase being simulated.</span>
+<span class="sd">    design_parameter_options : OptionsDictionary</span>
+<span class="sd">        The design parameter options for the phase being simulated.</span>
+<span class="sd">    input_parameter_options : OptionsDictionary</span>
+<span class="sd">        The input parameter options for the phase being simulated.</span>
+<span class="sd">    time_values : ndarray</span>
+<span class="sd">        The time values from the phase being simulated.</span>
+<span class="sd">    state_values : dict of {str : ndarray}</span>
+<span class="sd">        A dictionary keyed by state name containing the values of the state at the state input</span>
+<span class="sd">        nodes of the given phase.</span>
+<span class="sd">    control_values : dict of {str : ndarray}</span>
+<span class="sd">        A dictionary keyed by control name containing the values of the state at all</span>
+<span class="sd">        nodes of the given phase.</span>
+<span class="sd">    design_parameter_values : dict of {str : ndarray}</span>
+<span class="sd">        A dictionary keyed by design parameter name containing the values of all design parameters.</span>
+<span class="sd">    input_parameter_values : dict of {str : ndarray}</span>
+<span class="sd">        A dictionary keyed by design parameter name containing the values of all input parameters.</span>
+<span class="sd">    ode_init_kwargs : dict</span>
+<span class="sd">        Keyword initialization arguments for the ODE class.</span>
+<span class="sd">    grid_data : GridData</span>
+<span class="sd">        GridData object associated with the phase to be simulated.</span>
+<span class="sd">    times : str, int, Sequence</span>
+<span class="sd">        The times at which outputs of the ODE are desired.  If given as an int n, return values</span>
+<span class="sd">        at n equally distributed points in time throughout the phase.  If str, must be a valid</span>
+<span class="sd">        node subset for the phase.  If sequence, provides the times at which ODE outputs are</span>
+<span class="sd">        desired.</span>
+<span class="sd">    record : bool, optional</span>
+<span class="sd">        If True, record the results of the simulation.</span>
+<span class="sd">    record_file : str, optional</span>
+<span class="sd">        If given, provides the file path for the recorded simulation.  Defaults to</span>
+<span class="sd">        &#39;&lt;phase_name&gt;_sim.db&#39;.</span>
+<span class="sd">    observer : callable, None</span>
+<span class="sd">        The observer function used to monitor the explicit simulation.</span>
+<span class="sd">    integrator : str</span>
+<span class="sd">        The integrator to be used by scipy.ode.  This is one of:</span>
+<span class="sd">        &#39;vode&#39;, &#39;lsoda&#39;, &#39;dopri5&#39;, or &#39;dopri853&#39;.</span>
+<span class="sd">    integrator_params : dict</span>
+<span class="sd">        Parameters specific to the chosen integrator.  See the scipy.integrate.ode</span>
+<span class="sd">        documentation for details.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of {str : PhaseSimulationResults}</span>
+<span class="sd">        The PhaseSimulationResults object resulting from each Phase simulation, keyed by phase name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;simulating &#39;</span><span class="p">,</span> <span class="n">phase_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">state_options</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Phase has no states, nothing to simulate. </span><span class="se">\n</span><span class="s1">&#39;</span> \
+              <span class="s1">&#39;Call run_model() on the containing problem instead.&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">time_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">times</span><span class="p">)</span>
+
+    <span class="n">rhs_integrator</span> <span class="o">=</span> <span class="n">ScipyODEIntegrator</span><span class="p">(</span><span class="n">phase_name</span><span class="o">=</span><span class="n">phase_name</span><span class="p">,</span>
+                                        <span class="n">ode_class</span><span class="o">=</span><span class="n">ode_class</span><span class="p">,</span>
+                                        <span class="n">time_options</span><span class="o">=</span><span class="n">time_options</span><span class="p">,</span>
+                                        <span class="n">state_options</span><span class="o">=</span><span class="n">state_options</span><span class="p">,</span>
+                                        <span class="n">control_options</span><span class="o">=</span><span class="n">control_options</span><span class="p">,</span>
+                                        <span class="n">design_parameter_options</span><span class="o">=</span><span class="n">design_parameter_options</span><span class="p">,</span>
+                                        <span class="n">input_parameter_options</span><span class="o">=</span><span class="n">input_parameter_options</span><span class="p">,</span>
+                                        <span class="n">ode_init_kwargs</span><span class="o">=</span><span class="n">ode_init_kwargs</span><span class="p">)</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">state_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">state_options</span><span class="p">):</span>
+        <span class="n">x0</span><span class="p">[</span><span class="n">state_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_values</span><span class="p">[</span><span class="n">state_name</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+    <span class="n">rhs_integrator</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">exp_out</span> <span class="o">=</span> <span class="n">PhaseSimulationResults</span><span class="p">(</span><span class="n">time_options</span><span class="o">=</span><span class="n">time_options</span><span class="p">,</span>
+                                     <span class="n">state_options</span><span class="o">=</span><span class="n">state_options</span><span class="p">,</span>
+                                     <span class="n">control_options</span><span class="o">=</span><span class="n">control_options</span><span class="p">,</span>
+                                     <span class="n">design_parameter_options</span><span class="o">=</span><span class="n">design_parameter_options</span><span class="p">,</span>
+                                     <span class="n">input_parameter_options</span><span class="o">=</span><span class="n">input_parameter_options</span><span class="p">)</span>
+
+    <span class="n">seg_sequence</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">grid_data</span><span class="o">.</span><span class="n">num_segments</span><span class="p">)</span>
+
+    <span class="c1"># Set the values of the phase design parameters</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">design_parameter_options</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">design_parameter_values</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+        <span class="n">rhs_integrator</span><span class="o">.</span><span class="n">set_design_param_value</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Set the values of the phase input parameters</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">input_parameter_options</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">input_parameter_values</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
+        <span class="n">rhs_integrator</span><span class="o">.</span><span class="n">set_input_param_value</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+
+    <span class="n">first_seg</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">seg_i</span> <span class="ow">in</span> <span class="n">seg_sequence</span><span class="p">:</span>
+        <span class="n">seg_idxs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="o">.</span><span class="n">segment_indices</span><span class="p">[</span><span class="n">seg_i</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">seg_times</span> <span class="o">=</span> <span class="n">time_values</span><span class="p">[</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">control_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">control_options</span><span class="p">):</span>
+            <span class="n">interp</span> <span class="o">=</span> <span class="n">LagrangeBarycentricInterpolant</span><span class="p">(</span><span class="n">grid_data</span><span class="o">.</span><span class="n">node_stau</span><span class="p">[</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">ctrl_vals</span> <span class="o">=</span> <span class="n">control_values</span><span class="p">[</span><span class="n">control_name</span><span class="p">][</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">seg_idxs</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="n">interp</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">seg_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xf</span><span class="o">=</span><span class="n">seg_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">f_j</span><span class="o">=</span><span class="n">ctrl_vals</span><span class="p">)</span>
+            <span class="n">rhs_integrator</span><span class="o">.</span><span class="n">set_interpolant</span><span class="p">(</span><span class="n">control_name</span><span class="p">,</span> <span class="n">interp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">first_seg</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">state_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">state_options</span><span class="p">):</span>
+                <span class="n">x0</span><span class="p">[</span><span class="n">state_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">state_name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">idxs_times_in_seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">times</span> <span class="o">&gt;</span> <span class="n">seg_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                        <span class="n">times</span> <span class="o">&lt;</span> <span class="n">seg_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">t_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idxs_times_in_seg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">t_out</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">idxs_times_in_seg</span><span class="p">]</span>
+            <span class="n">t_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">t_out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;disc&#39;</span><span class="p">,</span> <span class="s1">&#39;state_disc&#39;</span><span class="p">):</span>
+            <span class="n">t_out</span> <span class="o">=</span> <span class="n">seg_times</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">times</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">t_out</span> <span class="o">=</span> <span class="n">seg_times</span>
+        <span class="k">elif</span> <span class="n">times</span> <span class="o">==</span> <span class="s1">&#39;col&#39;</span><span class="p">:</span>
+            <span class="n">t_out</span> <span class="o">=</span> <span class="n">seg_times</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for option times. &#39;</span>
+                             <span class="s1">&#39;Must be </span><span class="se">\&#39;</span><span class="s1">disc</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">all</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">col</span><span class="se">\&#39;</span><span class="s1">, or Iterable&#39;</span><span class="p">)</span>
+
+        <span class="n">seg_out</span> <span class="o">=</span> <span class="n">rhs_integrator</span><span class="o">.</span><span class="n">integrate_times</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">t_out</span><span class="p">,</span>
+                                                 <span class="n">integrator</span><span class="o">=</span><span class="n">integrator</span><span class="p">,</span>
+                                                 <span class="n">integrator_params</span><span class="o">=</span><span class="n">integrator_params</span><span class="p">,</span>
+                                                 <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">first_seg</span><span class="p">:</span>
+            <span class="n">exp_out</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">seg_out</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">var_type</span> <span class="ow">in</span> <span class="n">seg_out</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">seg_out</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">exp_out</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">exp_out</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+                                        <span class="n">seg_out</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]),</span>
+                                       <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">first_seg</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># Save</span>
+    <span class="k">if</span> <span class="n">record</span><span class="p">:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">record_file</span> <span class="k">if</span> <span class="n">record_file</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_sim.db&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phase_name</span><span class="p">)</span>
+        <span class="n">exp_out</span><span class="o">.</span><span class="n">record_results</span><span class="p">(</span><span class="n">phase_name</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">ode_class</span><span class="p">,</span> <span class="n">ode_init_kwargs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">phase_name</span><span class="p">,</span> <span class="s1">&#39;simulation complete&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">exp_out</span></div>
+
+
+<div class="viewcode-block" id="simulate_phase_map_unpack"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/simulate_phase.html#dymos.utils.simulation.simulate_phase.simulate_phase_map_unpack">[docs]</a><span class="k">def</span> <span class="nf">simulate_phase_map_unpack</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides argument unpacking for versions of Python without multiprocessing.Pool.starmap.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : tuple</span>
+<span class="sd">        A tuple of the positional arguments to be sent to simulate_phase.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of {str : PhaseSimulationResults}</span>
+<span class="sd">        The PhaseSimulationResults object resulting from each Phase simulation, keyed by phase name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">simulate_phase</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,251 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>trajectory_simulation_results.py &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dymos.utils.simulation.components" href="../dymos.utils.simulation.components.html" />
+    <link rel="prev" title="std_out_observer.py" href="std_out_observer.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dymos.utils.simulation.components.html" title="dymos.utils.simulation.components"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="std_out_observer.html" title="std_out_observer.py"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Source Docs</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../dymos.utils.simulation.html" accesskey="U">dymos.utils.simulation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="std_out_observer.html"
+                        title="previous chapter">std_out_observer.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../dymos.utils.simulation.components.html"
+                        title="next chapter">dymos.utils.simulation.components</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/_srcdocs/packages/utils.simulation/trajectory_simulation_results.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dymos.utils.simulation.trajectory_simulation_results">
+<span id="trajectory-simulation-results-py"></span><span id="dymos-utils-simulation-trajectory-simulation-results-py"></span><span id="index-0"></span><h1>trajectory_simulation_results.py<a class="headerlink" href="#module-dymos.utils.simulation.trajectory_simulation_results" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults">
+<em class="property">class </em><code class="descclassname">dymos.utils.simulation.trajectory_simulation_results.</code><code class="descname">TrajectorySimulationResults</code><span class="sig-paren">(</span><em>filepath=None</em>, <em>exp_outs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/trajectory_simulation_results.html#TrajectorySimulationResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TrajectorySimulationResults is returned by trajectory.simulate.  It’s primary
+purpose is to hold the dictionary of results from the integration
+and to provide a <cite>get_values</cite> interface that is equivalent to that
+in trajectory (except that it has no knowledge of nodes).</p>
+<p>TrajectorySimulationResults is created by combining the PhaseSimulationResults from
+the phases contained within it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filepath</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or None</span></dt>
+<dd><p class="first last">A filepath from which PhaseSimulationResults are to be loaded.</p>
+</dd>
+<dt><strong>exp_outs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str: PhaseSimulationResults}</span></dt>
+<dd><p class="first last">A dictionary of PhaseSimulationResults for each phase within the trajectory, keyed by
+phase name.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>filepath=None</em>, <em>exp_outs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/trajectory_simulation_results.html#TrajectorySimulationResults.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.get_phase_names">
+<code class="descname">get_phase_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/trajectory_simulation_results.html#TrajectorySimulationResults.get_phase_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.get_phase_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the names of the phases stored in this TrajectorySimulationResults object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list</strong></dt>
+<dd><p class="first last">The names of the phases in the TrajectorySimulationResults</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.get_values">
+<code class="descname">get_values</code><span class="sig-paren">(</span><em>var</em>, <em>phases=None</em>, <em>units=None</em>, <em>flat=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/trajectory_simulation_results.html#TrajectorySimulationResults.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the given variable from the given phases, if provided.
+If the variable is not present in one ore more phases, it will be returned as
+numpy.nan at each time step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>var</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The variable whose values are to be returned.</p>
+</dd>
+<dt><strong>phases</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Sequence, None</span></dt>
+<dd><p class="first last">The phases from which the values are desired.  If None, included all Phases.</p>
+</dd>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, None</span></dt>
+<dd><p class="first last">The units in which the values are desired.</p>
+</dd>
+<dt><strong>flat</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If False return the values in a dictionary keyed by phase name.  If True,
+return a single array incorporating values from all phases.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dict or np.array</strong></dt>
+<dd><p class="first last">If flat=False, a dictionary of the values of the variable in each phase will be
+returned, keyed by Phase name.  If the values are not present in a subset of the phases,
+return numpy.nan at each time point in those phases.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>KeyError</strong></dt>
+<dd><p class="first last">If the given variable is not found in any phase, a KeyError is raised.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.record_results">
+<code class="descname">record_results</code><span class="sig-paren">(</span><em>traj</em>, <em>exp_outs</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/trajectory_simulation_results.html#TrajectorySimulationResults.record_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.trajectory_simulation_results.TrajectorySimulationResults.record_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record the outputs to the given filename.  This is done by instantiating a new
+problem with an IndepVarComp for the time, states, controls, and control rates, as
+well as an instance of the given ODE class (instantiated with the number of nodes equal
+to the number of times in the outputs).</p>
+<p>The system is populated with data from outputs, has a recorder attached, and is executed
+via problem.run_model.  This data can then be retrieved from the <cite>system_cases</cite> attribute
+of CaseReader.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>traj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Trajectory</span></dt>
+<dd><p class="first last">The Trajectory whose simulated results are to be recorded.</p>
+</dd>
+<dt><strong>exp_outs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str</span></dt>
+<dd><p class="first last">A dictionary of {phase_name : PhaseSimulationResults} for each phase to be recorded</p>
+</dd>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The filename to which the recording should be saved.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dymos.utils.simulation.components.html" title="dymos.utils.simulation.components"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="std_out_observer.html" title="std_out_observer.py"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Source Docs</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../dymos.utils.simulation.html" >dymos.utils.simulation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

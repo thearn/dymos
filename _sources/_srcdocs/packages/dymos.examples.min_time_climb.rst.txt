@@ -1,0 +1,8 @@
+dymos.examples.min_time_climb
+-----------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples.min_time_climb/ex_min_time_climb
+    examples.min_time_climb/min_time_climb_ode

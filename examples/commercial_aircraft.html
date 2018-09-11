@@ -1,0 +1,1430 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Commercial Aircraft Range Maximization by Differential Inclusion &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multi-Phase Cannonball" href="multi_phase_cannonball.html" />
+    <link rel="prev" title="SSTO Lunar Ascent with Linear Tangent Guidance" href="ssto_moon_linear_tangent.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_phase_cannonball.html" title="Multi-Phase Cannonball"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ssto_moon_linear_tangent.html" title="SSTO Lunar Ascent with Linear Tangent Guidance"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="examples.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Commercial Aircraft Range Maximization by Differential Inclusion</a><ul>
+<li><a class="reference internal" href="#differential-inclusion">Differential Inclusion</a><ul>
+<li><a class="reference internal" href="#pitfalls-of-differential-inclusion">Pitfalls of Differential Inclusion</a><ul>
+<li><a class="reference internal" href="#solver-options">Solver Options</a></li>
+<li><a class="reference internal" href="#the-impact-of-choice-of-transcription">The Impact of Choice of Transcription</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#problem-formulation">Problem Formulation</a><ul>
+<li><a class="reference internal" href="#state-variables">State Variables</a></li>
+<li><a class="reference internal" href="#dynamic-controls">Dynamic Controls</a></li>
+<li><a class="reference internal" href="#design-parameters">Design Parameters</a></li>
+<li><a class="reference internal" href="#objective">Objective</a></li>
+<li><a class="reference internal" href="#nonlinear-path-constraints">Nonlinear Path Constraints</a></li>
+<li><a class="reference internal" href="#nonlinear-boundary-constraints">Nonlinear Boundary Constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#models">Models</a><ul>
+<li><a class="reference internal" href="#atmosphere">Atmosphere</a></li>
+<li><a class="reference internal" href="#true-airspeed">True Airspeed</a></li>
+<li><a class="reference internal" href="#flight-path-angle">Flight Path Angle</a></li>
+<li><a class="reference internal" href="#range-rate">Range Rate</a></li>
+<li><a class="reference internal" href="#mass">Mass</a></li>
+<li><a class="reference internal" href="#dynamic-pressure">Dynamic Pressure</a></li>
+<li><a class="reference internal" href="#aerodynamics">Aerodynamics</a></li>
+<li><a class="reference internal" href="#flight-equilibrium">Flight Equilibrium</a></li>
+<li><a class="reference internal" href="#propulsion">Propulsion</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-ode-system-aircraft-ode-py">1. The ODE System: aircraft_ode.py</a></li>
+<li><a class="reference internal" href="#building-and-running-the-problem">2. Building and running the problem</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ssto_moon_linear_tangent.html"
+                        title="previous chapter">SSTO Lunar Ascent with Linear Tangent Guidance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="multi_phase_cannonball.html"
+                        title="next chapter">Multi-Phase Cannonball</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/commercial_aircraft.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="commercial-aircraft-range-maximization-by-differential-inclusion">
+<h1>Commercial Aircraft Range Maximization by Differential Inclusion<a class="headerlink" href="#commercial-aircraft-range-maximization-by-differential-inclusion" title="Permalink to this headline">¶</a></h1>
+<p>In this example we seek to maximize the range of a commercial aircraft
+flying at a constant Mach number with a fixed initial fuel load.
+The initial and final altitudes are constrained to 10000 ft
+(that is, in this simplified example we’re ignoring
+the aircraft behavior near the ground).</p>
+<p>This example is simplified in several ways.  The Mach number is fixed
+at 0.8.  When only considering fuel burn, the aircraft will tend to fly
+slower to conserve fuel, ignoring the running costs of being airborne.</p>
+<p>For a more detailed optimization of commercial aircraft performance, see <a class="reference internal" href="#bettsaircraft1995" id="id1">[BettsAircraft1995]</a>.</p>
+<div class="section" id="differential-inclusion">
+<h2>Differential Inclusion<a class="headerlink" href="#differential-inclusion" title="Permalink to this headline">¶</a></h2>
+<p>In this case we also use the steady flight assumption to allow the problem
+to be parameterized with a different control set.  Rather than providing
+throttle/thrust and angle of attack as control variables, we use a <em>differential
+inclusion</em> approach.  Whereas altitude and velocity are often treated as
+state variables to be integrated, here we specify them as controls.</p>
+<p>Rather than using the differential equations to compute rates for the
+flight path angle and true airspeed, we use a nonlinear solver to determine
+the alpha and thrust time-history which is needed to make the given
+altitude and airspeed time-history possible.  This technique is known
+as differential inclusion.  It was demonstrated by Seywald <a class="reference internal" href="#seywald1994" id="id2">[Seywald1994]</a>.  Since
+the collocation techniques in Dymos are based on polynomial approximations,
+rates of the control variables can be easily calculated, which can then be used
+to the reordered dynamics equations to solve for angle of attack and thrust.</p>
+<p>The use of collocation/psuedospectral techniques in solving problems via
+differential inclusion has been examined by Fahroo and Ross <a class="reference internal" href="#fahrooross2001" id="id3">[FahrooRoss2001]</a> and
+Kumar and Seywald <a class="reference internal" href="#kumar1996" id="id4">[Kumar1996]</a>. Since the differential inclusion approach demonstrated
+here relies on nonlinear solvers running within the ODE model, obtaining accurate
+derivatives is paramount.  Computing derivatives with finite differences in the
+presence of nonlinear solvers can lead to inaccurate derivatives based on the properties
+of the solver.  With OpenMDAO’s unified derivatives framework, the sensitivy to
+solver tolerances is greatly reduced.</p>
+<div class="section" id="pitfalls-of-differential-inclusion">
+<h3>Pitfalls of Differential Inclusion<a class="headerlink" href="#pitfalls-of-differential-inclusion" title="Permalink to this headline">¶</a></h3>
+<p>Differential inclusion works well in this case but it is highly dependent
+on the parameterization of the problem.  For instance, it is possible for the
+optimizer to suggest a flight profile that requires thrust well beyond the capabilities
+of the vehicle.  In our case, the throttle parameter <span class="math notranslate nohighlight">\($\tau$\)</span> is path constrained
+within the optimizer, so that the optimizer can make the solution physically attainable
+by our model.</p>
+<div class="section" id="solver-options">
+<h4>Solver Options<a class="headerlink" href="#solver-options" title="Permalink to this headline">¶</a></h4>
+<p>In general, <cite>openmdao.api.AnalysisError</cite> should be raised when the design variables
+provided by the optimizer result in nonconvergence of the solvers. This informs pyoptsparse
+to backtrack along its line search for a solution.  This error can be raised by the <cite>compute</cite>
+method of a component.  The nonlinear solver can also raise this error if it fails to converge
+by setting the following options:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">nonlinear_solver</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;maxiter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">nonlinear_solver</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;err_on_maxiter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+<p>In the course of solving, an outer NewtonSolver won’t necessarily force subsystems to be solved,
+instead relying on the derivative at the at the previous solution.  In the context of OpenMDAO,
+even explicit components constitute subsystems. This can lead to poorly converged solutions.</p>
+<p>Setting the <cite>solve_subystems</cite> option to True will force subsystems to be updated, making sure that
+all derivative information is up-to-date.  The</p>
+<blockquote>
+<div>self.nonlinear_solver.options[‘solve_subsystems’] = True
+self.nonlinear_solver.options[‘max_sub_solves’] = 10</div></blockquote>
+</div>
+<div class="section" id="the-impact-of-choice-of-transcription">
+<h4>The Impact of Choice of Transcription<a class="headerlink" href="#the-impact-of-choice-of-transcription" title="Permalink to this headline">¶</a></h4>
+<p>The high-order Gauss-Lobatto method used by Dymos evaluates the ordinary differential equations
+in a two-step process.  First, the ODEs are evaluated at the <em>state discretization</em> nodes.  Using
+the state values and derivatives, values and rates at the <em>collocation</em> nodes are then interpolated.
+If a large rate is found at one of the state discretization nodes, the interpolation at the
+collocation node can be outside of the expected range, leading to nonconvergence of solvers within
+the ODEs.</p>
+<p>There is also an overhead cost to invoking solvers.  While differential inclusion reduces the
+number of design variables for the optimizer, it also slows down each evaluation of the ODE
+somewhat.  Since evaluating the collocation constraints in the Gauss-Lobatto method requires two
+evaluations of the ODE, it typically suffers greater slowdown that the Radau Pseudospectral method,
+which evaluates the defects of the ODE with a single evaluation that encompasses all the nodes.</p>
+<p>For these reasons the Radau Pseudospectral transcription is typically preferable when using
+a differential inclusion approach to problems.</p>
+</div>
+</div>
+</div>
+<div class="section" id="problem-formulation">
+<h2>Problem Formulation<a class="headerlink" href="#problem-formulation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="state-variables">
+<h3>State Variables<a class="headerlink" href="#state-variables" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="39%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Fixed Initial Value</th>
+<th class="head">Fixed Final Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>range</td>
+<td>distance flown along ground</td>
+<td>True (0 NM)</td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td>mass_fuel</td>
+<td>mass of fuel aboard aircraft</td>
+<td>True (30000 lbm)</td>
+<td>True (0 lbm)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dynamic-controls">
+<h3>Dynamic Controls<a class="headerlink" href="#dynamic-controls" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="37%" />
+<col width="11%" />
+<col width="23%" />
+<col width="23%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Optimized</th>
+<th class="head">Fixed Initial Value</th>
+<th class="head">Fixed Final Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>alt</td>
+<td>aircraft altitude</td>
+<td>True</td>
+<td>True (10000 ft)</td>
+<td>True (10000 ft)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="design-parameters">
+<h3>Design Parameters<a class="headerlink" href="#design-parameters" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Optimized</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mach</td>
+<td>mach number</td>
+<td>False (0.8)</td>
+</tr>
+<tr class="row-odd"><td>S</td>
+<td>aerodynamic reference area</td>
+<td>False (427.8 m**2)</td>
+</tr>
+<tr class="row-even"><td>mass_empty</td>
+<td>aircraft empty mass</td>
+<td>False (330693.393 lbm)</td>
+</tr>
+<tr class="row-odd"><td>mass_payload</td>
+<td>aircraft payload mass</td>
+<td>False (74100 lbm)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="objective">
+<h3>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Location (initial or final)</th>
+<th class="head">Minimized or Maximized</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>range</td>
+<td>final</td>
+<td>Maximized</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="nonlinear-path-constraints">
+<h3>Nonlinear Path Constraints<a class="headerlink" href="#nonlinear-path-constraints" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="44%" />
+<col width="18%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Location (initial or final)</th>
+<th class="head">Lower</th>
+<th class="head">Upper</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>tau</td>
+<td>engine throttle parameter</td>
+<td>0.01</td>
+<td>1.0</td>
+</tr>
+<tr class="row-odd"><td>alt_rate</td>
+<td>climb rate</td>
+<td>-3000 ft/min</td>
+<td>3000 ft/min</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="nonlinear-boundary-constraints">
+<h3>Nonlinear Boundary Constraints<a class="headerlink" href="#nonlinear-boundary-constraints" title="Permalink to this headline">¶</a></h3>
+<p>None</p>
+</div>
+</div>
+<div class="section" id="models">
+<h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="atmosphere">
+<h3>Atmosphere<a class="headerlink" href="#atmosphere" title="Permalink to this headline">¶</a></h3>
+<p>This problem uses an analytic fit to the 1976 standard atmosphere.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>alt</td>
+<td>altitude (m)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>pres</td>
+<td>static pressure (Pa)</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>temp</td>
+<td>temperature (K)</td>
+<td>output</td>
+</tr>
+<tr class="row-odd"><td>sos</td>
+<td>speed of sound (m/s)</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>rho</td>
+<td>density (kg/m**3)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="true-airspeed">
+<h3>True Airspeed<a class="headerlink" href="#true-airspeed" title="Permalink to this headline">¶</a></h3>
+<p><cite>TrueAirspeedComp</cite> uses the Mach number, provided as a control, and the speed of
+sound from the atmosphere model to compute the true airspeed of the aircraft.</p>
+<div class="math notranslate nohighlight">
+\[TAS = mach \cdot sos\]</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mach</td>
+<td>Mach number</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>sos</td>
+<td>speed of sound (m/s)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>TAS</td>
+<td>true airspeed (m/s)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="flight-path-angle">
+<h3>Flight Path Angle<a class="headerlink" href="#flight-path-angle" title="Permalink to this headline">¶</a></h3>
+<p><cite>SteadyFlightPathAngleComp</cite> uses the true airspeed and the climb rate, obtained
+by differentiating the altitude time history at the nodes, to compute the
+flight path angle.</p>
+<div class="math notranslate nohighlight">
+\[\gamma = \arctan{\frac{TAS}{\dot{h}}}\]</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TAS</td>
+<td>true airspeed (m/s)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>alt_rate</td>
+<td>climb rate (m/s)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>gam</td>
+<td>flight path angle (rad)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="range-rate">
+<h3>Range Rate<a class="headerlink" href="#range-rate" title="Permalink to this headline">¶</a></h3>
+<p><cite>RangeRateComp</cite> uses the true airspeed and the flight path angle to
+determine the velocity projected along the ground.  This is the
+derivative of the state variable <cite>range</cite>.</p>
+<div class="math notranslate nohighlight">
+\[\dot{range} = TAS \cdot \cos{\gamma}\]</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TAS</td>
+<td>true airspeed (m/s)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>gam</td>
+<td>flight path angle (rad)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>dXdt:range</td>
+<td>range rate (m/s)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="mass">
+<h3>Mass<a class="headerlink" href="#mass" title="Permalink to this headline">¶</a></h3>
+<p>The component <cite>MassComp</cite> defined in <cite>mass_comp.py</cite> computes the aircraft
+total mass based on its empty mass, payload mass, and current fuel mass.
+It also computes total weight which simplifies some equations later on.</p>
+<div class="math notranslate nohighlight">
+\[mass_{total} = mass_{empty} + mass_{payload} + mass_{fuel}
+W_{total} = 9.80665 mass_{total}\]</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mass_empty</td>
+<td>aircraft empty mass (kg)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>mass_payload</td>
+<td>payload mass (kg)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>mass_fuel</td>
+<td>fuel mass (kg)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>mass_total</td>
+<td>total aircraft mass (kg)</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>W_total</td>
+<td>total aircraft weight (N)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dynamic-pressure">
+<h3>Dynamic Pressure<a class="headerlink" href="#dynamic-pressure" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>DynamicPressureComp</cite> computes the dynamic pressure from true airspeed
+and atmospheric density.</p>
+<div class="math notranslate nohighlight">
+\[q = \frac{1}{2}\rho TAS^2\]</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TAS</td>
+<td>true airspeed (m/s)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>rho</td>
+<td>atmospheric density (kg/m**3)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>q</td>
+<td>dynamic pressure (Pa)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="aerodynamics">
+<h3>Aerodynamics<a class="headerlink" href="#aerodynamics" title="Permalink to this headline">¶</a></h3>
+<p>The aerodynamics group computes the aerodynamic coefficients and forces
+on the vehicle.  It consists of an interpolation component which outputs
+lift, drag, and moment coefficients as a function of Mach number, angle of attack,
+altitude, and tail rotation angle.  A second component then uses these
+coefficients, along with dynamic pressure and aerodynamic reference area,
+to compute the lift and drag forces on the vehicle.</p>
+<p>The aerodynamics group resides within the flight equilibrium group.  As that
+group iterates to find the combination of thrust coefficient, angle of attack,
+and tail rotation angle, aerodynamics needs to update the values of the
+interpolated coefficients and resulting forces.</p>
+<p>Organizationally speaking, we logically could have put the dynamic pressure component
+within the aerodynamics group.  However, since that group doesn’t need to be
+updated with changes in alpha and tail angle, it’s more efficient to leave it
+outside of flight equilibrium group.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="47%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Input or Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mach</td>
+<td>mach number</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>alt</td>
+<td>altitude (m)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>alpha</td>
+<td>angle of attack (deg)</td>
+<td>input</td>
+</tr>
+<tr class="row-odd"><td>eta</td>
+<td>tail rotation angle (deg)</td>
+<td>input</td>
+</tr>
+<tr class="row-even"><td>CL</td>
+<td>lift coefficient</td>
+<td>output</td>
+</tr>
+<tr class="row-odd"><td>CD</td>
+<td>drag coefficient</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>CM</td>
+<td>moment coefficient</td>
+<td>output</td>
+</tr>
+<tr class="row-odd"><td>L</td>
+<td>lift force (N)</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>D</td>
+<td>drag force (N)</td>
+<td>output</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This example uses <cite>openmdao.api.MetaModelStructuredComp</cite> to interpolate aerodynamic properties
+of the vehicle.  This component is somewhat easier to use since it is distributed as part of
+OpenMDAO, but it can be significantly slower than alternatives such as
+<a class="reference external" href="https://github.com/OpenMDAO/MBI">MBI</a> and <a class="reference external" href="https://github.com/SMTorg/smt">SMT</a>.  The
+Aerodynamics group includes an implementation of the aerodynamics coefficients interpolant
+which uses MBI that is commented out.  By switching to MBI for this component, this problem
+will solve roughly 20 times faster.</p>
+</div>
+</div>
+<div class="section" id="flight-equilibrium">
+<h3>Flight Equilibrium<a class="headerlink" href="#flight-equilibrium" title="Permalink to this headline">¶</a></h3>
+<p>The steady flight equilibrium group uses balances to solve for the angle of attack and
+tail plane rotation angle such that the aircraft is in steady
+flight (the rates of change in flight path angle and true airspeed are zero) and the
+aerodynamic moment in the pitch axis is zero.</p>
+<p>Of course, in reality the vehicle will accelerate, but the flight profile being modeled
+is so benign that assuming steady flight at discrete points (nodes) in the trajectory is
+not terribly inaccurate.</p>
+<p>The thrust coefficient necessary for steady flight is computed by balancing the drag equation</p>
+<div class="math notranslate nohighlight">
+\[C_T = W_{total} * \frac{\sin{\gamma}}{\cos{\alpha} * q \cdot S} + \frac{C_D}{\cos{\alpha}}\]</div>
+<p>The lift coefficient required for steady flight is found by balancing lift and weight:</p>
+<div class="math notranslate nohighlight">
+\[\tilde{C_L} = W_{total} * \frac{\cos{\gamma}}{q \cdot S} - C_T * \sin{\alpha}\]</div>
+<p>Using coefficients in the balance equations is better scaled from a numerical standpoint.</p>
+</div>
+<div class="section" id="propulsion">
+<h3>Propulsion<a class="headerlink" href="#propulsion" title="Permalink to this headline">¶</a></h3>
+<p>Having determined the coefficient of thrust, the propulsion group converts that to an
+actual thrust value. This is, in turn, used to compute the rate of fuel burn.  In addition,
+by normalizing thrust at any point by the maximum possible thrust, we obtain the throttle
+parameter <span class="math notranslate nohighlight">\(\tau\)</span>.  The propulsion group uses a number of components to perform these
+calculations.  First, thrust is computed from the thrust coefficient, dynamic pressure,
+and reference area:</p>
+<div class="math notranslate nohighlight">
+\[T &amp;= C_T \cdot q \cdot S\]</div>
+<p>Maximum thrust is computed by multiplying sea-level thrust by the ratio of pressure to
+sea-level atmospheric pressure.</p>
+<div class="math notranslate nohighlight">
+\[T_{max} = T_{max,sl} \frac{P}{P_{sl}}\]</div>
+<p>The throttle parameter is then the ratio current thrust to maximum possible thrust.</p>
+<div class="math notranslate nohighlight">
+\[\tau = \frac{T}{T_{max}}\]</div>
+<p>The thrust specific fuel consumption is computed as follows:</p>
+<div class="math notranslate nohighlight">
+\[TSFC = TSFC_{sl} - 1.5E-10 \cdot 9.80665 \cdot alt\]</div>
+<p>Finally, fuel burn rate is:</p>
+<div class="math notranslate nohighlight">
+\[\dot{mass_{fuel}} = -TSFC \frac{T}{9.80665}\]</div>
+</div>
+</div>
+<div class="section" id="the-ode-system-aircraft-ode-py">
+<h2>1. The ODE System: aircraft_ode.py<a class="headerlink" href="#the-ode-system-aircraft-ode-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">AircraftODE</span><span class="p">(</span><span class="n">Group</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">declare</span><span class="p">(</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                             <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Number of nodes to be evaluated in the RHS&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;num_nodes&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mass_comp&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">MassComp</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;mass_comp.W_total&#39;</span><span class="p">,</span> <span class="s1">&#39;flight_equilibrium.W_total&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;atmos&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">StandardAtmosphereGroup</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;atmos.pres&#39;</span><span class="p">,</span> <span class="s1">&#39;propulsion.pres&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;atmos.sos&#39;</span><span class="p">,</span> <span class="s1">&#39;tas_comp.sos&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;atmos.rho&#39;</span><span class="p">,</span> <span class="s1">&#39;q_comp.rho&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;tas_comp&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">TrueAirspeedComp</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;tas_comp.TAS&#39;</span><span class="p">,</span>
+                     <span class="p">(</span><span class="s1">&#39;gam_comp.TAS&#39;</span><span class="p">,</span> <span class="s1">&#39;q_comp.TAS&#39;</span><span class="p">,</span> <span class="s1">&#39;range_rate_comp.TAS&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gam_comp&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">SteadyFlightPathAngleComp</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;gam_comp.gam&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;flight_equilibrium.gam&#39;</span><span class="p">,</span> <span class="s1">&#39;range_rate_comp.gam&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;q_comp&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">DynamicPressureComp</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;q_comp.q&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;aero.q&#39;</span><span class="p">,</span> <span class="s1">&#39;flight_equilibrium.q&#39;</span><span class="p">,</span> <span class="s1">&#39;propulsion.q&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;flight_equilibrium&#39;</span><span class="p">,</span>
+                           <span class="n">subsys</span><span class="o">=</span><span class="n">SteadyFlightEquilibriumGroup</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">),</span>
+                           <span class="n">promotes_inputs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aero.*&#39;</span><span class="p">],</span>
+                           <span class="n">promotes_outputs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;aero.*&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;flight_equilibrium.CT&#39;</span><span class="p">,</span> <span class="s1">&#39;propulsion.CT&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;propulsion&#39;</span><span class="p">,</span> <span class="n">subsys</span><span class="o">=</span><span class="n">PropulsionGroup</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;range_rate_comp&#39;</span><span class="p">,</span> <span class="n">subsys</span><span class="o">=</span><span class="n">RangeRateComp</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In this case the system has only two integrated states: <cite>range</cite> and <cite>mass_fuel</cite>.  There are six parameters.
+Two of them, <cite>alt</cite> and <cite>climb_rate</cite>, will be varied dynamically in the phase, and the other four,
+<cite>mach</cite>, <cite>S</cite>, <cite>mass_empty</cite>, and <cite>mass_payload</cite>, will be set to fixed values as non-optimized design
+parameters.  More details on the various models involved can be found in the examples code.</p>
+</div>
+<div class="section" id="building-and-running-the-problem">
+<h2>2. Building and running the problem<a class="headerlink" href="#building-and-running-the-problem" title="Permalink to this headline">¶</a></h2>
+<p>In the following code we define and solve the optimal control problem.  Note that we demonstrate
+the use of externally-connected design parameters in this case.  The four design parameters have
+<cite>input_value = True</cite>, and are connected to a source provided by the <cite>assumptions</cite> IndepVarComp.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">openmdao.api</span> <span class="kn">import</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">Group</span><span class="p">,</span> <span class="n">pyOptSparseDriver</span><span class="p">,</span> <span class="n">DirectSolver</span><span class="p">,</span> <span class="n">IndepVarComp</span>
+<span class="kn">from</span> <span class="nn">openmdao.utils.assert_utils</span> <span class="kn">import</span> <span class="n">assert_rel_error</span>
+
+<span class="kn">from</span> <span class="nn">dymos</span> <span class="kn">import</span> <span class="n">Phase</span>
+
+<span class="kn">from</span> <span class="nn">dymos.examples.aircraft_steady_flight.aircraft_ode</span> <span class="kn">import</span> <span class="n">AircraftODE</span>
+<span class="kn">from</span> <span class="nn">dymos.utils.lgl</span> <span class="kn">import</span> <span class="n">lgl</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Group</span><span class="p">())</span>
+<span class="n">p</span><span class="o">.</span><span class="n">driver</span> <span class="o">=</span> <span class="n">pyOptSparseDriver</span><span class="p">()</span>
+<span class="n">p</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;optimizer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;SLSQP&#39;</span>
+<span class="n">p</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;dynamic_simul_derivs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="n">num_seg</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">seg_ends</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lgl</span><span class="p">(</span><span class="n">num_seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">phase</span> <span class="o">=</span> <span class="n">Phase</span><span class="p">(</span><span class="s1">&#39;gauss-lobatto&#39;</span><span class="p">,</span>
+              <span class="n">ode_class</span><span class="o">=</span><span class="n">AircraftODE</span><span class="p">,</span>
+              <span class="n">num_segments</span><span class="o">=</span><span class="n">num_seg</span><span class="p">,</span>
+              <span class="n">segment_ends</span><span class="o">=</span><span class="n">seg_ends</span><span class="p">,</span>
+              <span class="n">transcription_order</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+              <span class="n">compressed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c1"># Pass design parameters in externally from an external source</span>
+<span class="n">assumptions</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="s1">&#39;assumptions&#39;</span><span class="p">,</span> <span class="n">IndepVarComp</span><span class="p">())</span>
+<span class="n">assumptions</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;mach&#39;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">assumptions</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">427.8</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;m**2&#39;</span><span class="p">)</span>
+<span class="n">assumptions</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;mass_empty&#39;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;kg&#39;</span><span class="p">)</span>
+<span class="n">assumptions</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;mass_payload&#39;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;kg&#39;</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="s1">&#39;phase0&#39;</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">set_time_options</span><span class="p">(</span><span class="n">fix_initial</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                       <span class="n">duration_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span>
+                       <span class="n">duration_ref</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">set_state_options</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;NM&#39;</span><span class="p">,</span> <span class="n">fix_initial</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fix_final</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                        <span class="n">scaler</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+                        <span class="n">defect_scaler</span><span class="o">=</span><span class="mf">1.0E-2</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">set_state_options</span><span class="p">(</span><span class="s1">&#39;mass_fuel&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;lbm&#39;</span><span class="p">,</span> <span class="n">fix_initial</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fix_final</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                        <span class="n">upper</span><span class="o">=</span><span class="mf">1.5E5</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scaler</span><span class="o">=</span><span class="mf">1.0E-5</span><span class="p">,</span> <span class="n">defect_scaler</span><span class="o">=</span><span class="mf">1.0E-1</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="s1">&#39;alt&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;kft&#39;</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>
+                  <span class="n">rate_param</span><span class="o">=</span><span class="s1">&#39;climb_rate&#39;</span><span class="p">,</span>
+                  <span class="n">rate_continuity</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">rate_continuity_scaler</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                  <span class="n">rate2_continuity</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">rate2_continuity_scaler</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                  <span class="n">fix_initial</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fix_final</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">add_input_parameter</span><span class="p">(</span><span class="s1">&#39;mach&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">phase</span><span class="o">.</span><span class="n">add_input_parameter</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;m**2&#39;</span><span class="p">)</span>
+<span class="n">phase</span><span class="o">.</span><span class="n">add_input_parameter</span><span class="p">(</span><span class="s1">&#39;mass_empty&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;kg&#39;</span><span class="p">)</span>
+<span class="n">phase</span><span class="o">.</span><span class="n">add_input_parameter</span><span class="p">(</span><span class="s1">&#39;mass_payload&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;kg&#39;</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">add_path_constraint</span><span class="p">(</span><span class="s1">&#39;propulsion.tau&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">phase</span><span class="o">.</span><span class="n">add_path_constraint</span><span class="p">(</span><span class="s1">&#39;alt_rate&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ft/min&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=-</span><span class="mi">3000</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;assumptions.mach&#39;</span><span class="p">,</span> <span class="s1">&#39;phase0.input_parameters:mach&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;assumptions.S&#39;</span><span class="p">,</span> <span class="s1">&#39;phase0.input_parameters:S&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;assumptions.mass_empty&#39;</span><span class="p">,</span> <span class="s1">&#39;phase0.input_parameters:mass_empty&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;assumptions.mass_payload&#39;</span><span class="p">,</span> <span class="s1">&#39;phase0.input_parameters:mass_payload&#39;</span><span class="p">)</span>
+
+<span class="n">phase</span><span class="o">.</span><span class="n">add_objective</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;final&#39;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">linear_solver</span> <span class="o">=</span> <span class="n">DirectSolver</span><span class="p">(</span><span class="n">assemble_jac</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_initial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3600.0</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">),</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.states:mass_fuel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="p">(</span><span class="mi">30000</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;state_input&#39;</span><span class="p">)</span>
+
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.controls:alt&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;assumptions.mach&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;assumptions.S&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">427.8</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;assumptions.mass_empty&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.15E6</span>
+<span class="n">p</span><span class="p">[</span><span class="s1">&#39;assumptions.mass_payload&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">84.02869</span> <span class="o">*</span> <span class="mi">400</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">run_driver</span><span class="p">()</span>
+
+<span class="n">exp_out</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;phase0.t_duration&#39;</span><span class="p">],</span> <span class="mi">500</span><span class="p">),</span> <span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                         <span class="n">record_file</span><span class="o">=</span><span class="s1">&#39;test_doc_aircraft_steady_flight_rec.db&#39;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;NM&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">),</span>
+         <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;alt&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ft&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+         <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;alt&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ft&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Altitude vs Time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Altitude (ft)&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">),</span>
+         <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;alt_rate&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ft/min&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+         <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;alt_rate&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ft/min&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Climb Rate vs Time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Climb Rate (ft/min)&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">),</span>
+         <span class="n">phase</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;mass_fuel&#39;</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;lbm&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;ro&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">),</span>
+         <span class="n">exp_out</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;mass_fuel&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;lbm&#39;</span><span class="p">),</span>
+         <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Fuel Mass vs Time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Fuel Mass (lbm)&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="cell border-box-sizing code_cell rendered"><div class="output_area"><pre>
+Using tolerance: 1e-17
+Most common number of zero entries (36639 of 38479) repeated 5 times out of 11 tolerances tested.
+
+Full total jacobian was computed 3 times, taking 0.391057 seconds.
+Total jacobian shape: (239, 161) 
+
+
+
+Optimization Problem -- Optimization using pyOpt_sparse
+================================================================================
+    Objective Function: _objfunc
+
+    Solution: 
+--------------------------------------------------------------------------------
+    Total Time:                   52.2906
+       User Objective Time :      47.2829
+       User Sensitivity Time :     3.5136
+       Interface Time :            0.4954
+       Opt Solver Time:            0.9986
+    Calls to Objective Function :      40
+    Calls to Sens Function :           39
+
+
+   Objectives
+      Index  Name                                        Value          Optimum
+          0  phase0.indep_states.states:range    -7.266282E+02     0.000000E+00
+
+   Variables (c - continuous, i - integer, d - discrete)
+      Index  Name                                      Type      Lower Bound            Value      Upper Bound     Status
+          0  phase0.time_extents.t_duration_0             c     8.333333E-02     1.567574E+00     2.777778E+00           
+          1  phase0.indep_controls.controls:alt_0         c     0.000000E+00     1.074135E+01     5.000000E+01           
+          2  phase0.indep_controls.controls:alt_1         c     0.000000E+00     1.214669E+01     5.000000E+01           
+          3  phase0.indep_controls.controls:alt_2         c     0.000000E+00     1.355204E+01     5.000000E+01           
+          4  phase0.indep_controls.controls:alt_3         c     0.000000E+00     1.429339E+01     5.000000E+01           
+          5  phase0.indep_controls.controls:alt_4         c     0.000000E+00     1.429339E+01     5.000000E+01           
+          6  phase0.indep_controls.controls:alt_5         c     0.000000E+00     1.600761E+01     5.000000E+01           
+          7  phase0.indep_controls.controls:alt_6         c     0.000000E+00     1.925717E+01     5.000000E+01           
+          8  phase0.indep_controls.controls:alt_7         c     0.000000E+00     2.250673E+01     5.000000E+01           
+          9  phase0.indep_controls.controls:alt_8         c     0.000000E+00     2.422095E+01     5.000000E+01           
+         10  phase0.indep_controls.controls:alt_9         c     0.000000E+00     2.422095E+01     5.000000E+01           
+         11  phase0.indep_controls.controls:alt_10        c     0.000000E+00     2.682895E+01     5.000000E+01           
+         12  phase0.indep_controls.controls:alt_11        c     0.000000E+00     3.163840E+01     5.000000E+01           
+         13  phase0.indep_controls.controls:alt_12        c     0.000000E+00     3.579263E+01     5.000000E+01           
+         14  phase0.indep_controls.controls:alt_13        c     0.000000E+00     3.741614E+01     5.000000E+01           
+         15  phase0.indep_controls.controls:alt_14        c     0.000000E+00     3.741614E+01     5.000000E+01           
+         16  phase0.indep_controls.controls:alt_15        c     0.000000E+00     3.871814E+01     5.000000E+01           
+         17  phase0.indep_controls.controls:alt_16        c     0.000000E+00     3.973056E+01     5.000000E+01           
+         18  phase0.indep_controls.controls:alt_17        c     0.000000E+00     4.019388E+01     5.000000E+01           
+         19  phase0.indep_controls.controls:alt_18        c     0.000000E+00     4.035643E+01     5.000000E+01           
+         20  phase0.indep_controls.controls:alt_19        c     0.000000E+00     4.035643E+01     5.000000E+01           
+         21  phase0.indep_controls.controls:alt_20        c     0.000000E+00     4.036124E+01     5.000000E+01           
+         22  phase0.indep_controls.controls:alt_21        c     0.000000E+00     4.020084E+01     5.000000E+01           
+         23  phase0.indep_controls.controls:alt_22        c     0.000000E+00     4.026974E+01     5.000000E+01           
+         24  phase0.indep_controls.controls:alt_23        c     0.000000E+00     4.036501E+01     5.000000E+01           
+         25  phase0.indep_controls.controls:alt_24        c     0.000000E+00     4.036501E+01     5.000000E+01           
+         26  phase0.indep_controls.controls:alt_25        c     0.000000E+00     4.039950E+01     5.000000E+01           
+         27  phase0.indep_controls.controls:alt_26        c     0.000000E+00     4.037752E+01     5.000000E+01           
+         28  phase0.indep_controls.controls:alt_27        c     0.000000E+00     4.042660E+01     5.000000E+01           
+         29  phase0.indep_controls.controls:alt_28        c     0.000000E+00     4.047460E+01     5.000000E+01           
+         30  phase0.indep_controls.controls:alt_29        c     0.000000E+00     4.047460E+01     5.000000E+01           
+         31  phase0.indep_controls.controls:alt_30        c     0.000000E+00     4.050334E+01     5.000000E+01           
+         32  phase0.indep_controls.controls:alt_31        c     0.000000E+00     4.052989E+01     5.000000E+01           
+         33  phase0.indep_controls.controls:alt_32        c     0.000000E+00     4.057894E+01     5.000000E+01           
+         34  phase0.indep_controls.controls:alt_33        c     0.000000E+00     4.061386E+01     5.000000E+01           
+         35  phase0.indep_controls.controls:alt_34        c     0.000000E+00     4.061386E+01     5.000000E+01           
+         36  phase0.indep_controls.controls:alt_35        c     0.000000E+00     4.064498E+01     5.000000E+01           
+         37  phase0.indep_controls.controls:alt_36        c     0.000000E+00     4.068636E+01     5.000000E+01           
+         38  phase0.indep_controls.controls:alt_37        c     0.000000E+00     4.072205E+01     5.000000E+01           
+         39  phase0.indep_controls.controls:alt_38        c     0.000000E+00     4.075212E+01     5.000000E+01           
+         40  phase0.indep_controls.controls:alt_39        c     0.000000E+00     4.075212E+01     5.000000E+01           
+         41  phase0.indep_controls.controls:alt_40        c     0.000000E+00     4.079343E+01     5.000000E+01           
+         42  phase0.indep_controls.controls:alt_41        c     0.000000E+00     4.084460E+01     5.000000E+01           
+         43  phase0.indep_controls.controls:alt_42        c     0.000000E+00     4.085148E+01     5.000000E+01           
+         44  phase0.indep_controls.controls:alt_43        c     0.000000E+00     4.088221E+01     5.000000E+01           
+         45  phase0.indep_controls.controls:alt_44        c     0.000000E+00     4.088221E+01     5.000000E+01           
+         46  phase0.indep_controls.controls:alt_45        c     0.000000E+00     4.095200E+01     5.000000E+01           
+         47  phase0.indep_controls.controls:alt_46        c     0.000000E+00     4.101161E+01     5.000000E+01           
+         48  phase0.indep_controls.controls:alt_47        c     0.000000E+00     4.093909E+01     5.000000E+01           
+         49  phase0.indep_controls.controls:alt_48        c     0.000000E+00     4.098122E+01     5.000000E+01           
+         50  phase0.indep_controls.controls:alt_49        c     0.000000E+00     4.098122E+01     5.000000E+01           
+         51  phase0.indep_controls.controls:alt_50        c     0.000000E+00     4.113279E+01     5.000000E+01           
+         52  phase0.indep_controls.controls:alt_51        c     0.000000E+00     4.120682E+01     5.000000E+01           
+         53  phase0.indep_controls.controls:alt_52        c     0.000000E+00     4.089306E+01     5.000000E+01           
+         54  phase0.indep_controls.controls:alt_53        c     0.000000E+00     4.093923E+01     5.000000E+01           
+         55  phase0.indep_controls.controls:alt_54        c     0.000000E+00     4.093923E+01     5.000000E+01           
+         56  phase0.indep_controls.controls:alt_55        c     0.000000E+00     4.129980E+01     5.000000E+01           
+         57  phase0.indep_controls.controls:alt_56        c     0.000000E+00     4.180060E+01     5.000000E+01           
+         58  phase0.indep_controls.controls:alt_57        c     0.000000E+00     4.045722E+01     5.000000E+01           
+         59  phase0.indep_controls.controls:alt_58        c     0.000000E+00     3.855957E+01     5.000000E+01           
+         60  phase0.indep_controls.controls:alt_59        c     0.000000E+00     3.855957E+01     5.000000E+01           
+         61  phase0.indep_controls.controls:alt_60        c     0.000000E+00     3.649890E+01     5.000000E+01           
+         62  phase0.indep_controls.controls:alt_61        c     0.000000E+00     3.179156E+01     5.000000E+01           
+         63  phase0.indep_controls.controls:alt_62        c     0.000000E+00     2.681673E+01     5.000000E+01           
+         64  phase0.indep_controls.controls:alt_63        c     0.000000E+00     2.421395E+01     5.000000E+01           
+         65  phase0.indep_controls.controls:alt_64        c     0.000000E+00     2.421395E+01     5.000000E+01           
+         66  phase0.indep_controls.controls:alt_65        c     0.000000E+00     2.250469E+01     5.000000E+01           
+         67  phase0.indep_controls.controls:alt_66        c     0.000000E+00     1.925730E+01     5.000000E+01           
+         68  phase0.indep_controls.controls:alt_67        c     0.000000E+00     1.600753E+01     5.000000E+01           
+         69  phase0.indep_controls.controls:alt_68        c     0.000000E+00     1.429337E+01     5.000000E+01           
+         70  phase0.indep_controls.controls:alt_69        c     0.000000E+00     1.429337E+01     5.000000E+01           
+         71  phase0.indep_controls.controls:alt_70        c     0.000000E+00     1.355202E+01     5.000000E+01           
+         72  phase0.indep_controls.controls:alt_71        c     0.000000E+00     1.214668E+01     5.000000E+01           
+         73  phase0.indep_controls.controls:alt_72        c     0.000000E+00     1.074135E+01     5.000000E+01           
+         74  phase0.indep_states.states:mass_fuel_0       c     0.000000E+00     2.940274E-01     1.500000E+00           
+         75  phase0.indep_states.states:mass_fuel_1       c     0.000000E+00     2.883142E-01     1.500000E+00           
+         76  phase0.indep_states.states:mass_fuel_2       c     0.000000E+00     2.883142E-01     1.500000E+00           
+         77  phase0.indep_states.states:mass_fuel_3       c     0.000000E+00     2.759998E-01     1.500000E+00           
+         78  phase0.indep_states.states:mass_fuel_4       c     0.000000E+00     2.647574E-01     1.500000E+00           
+         79  phase0.indep_states.states:mass_fuel_5       c     0.000000E+00     2.647574E-01     1.500000E+00           
+         80  phase0.indep_states.states:mass_fuel_6       c     0.000000E+00     2.492976E-01     1.500000E+00           
+         81  phase0.indep_states.states:mass_fuel_7       c     0.000000E+00     2.363340E-01     1.500000E+00           
+         82  phase0.indep_states.states:mass_fuel_8       c     0.000000E+00     2.363340E-01     1.500000E+00           
+         83  phase0.indep_states.states:mass_fuel_9       c     0.000000E+00     2.244284E-01     1.500000E+00           
+         84  phase0.indep_states.states:mass_fuel_10      c     0.000000E+00     2.140437E-01     1.500000E+00           
+         85  phase0.indep_states.states:mass_fuel_11      c     0.000000E+00     2.140437E-01     1.500000E+00           
+         86  phase0.indep_states.states:mass_fuel_12      c     0.000000E+00     2.024786E-01     1.500000E+00           
+         87  phase0.indep_states.states:mass_fuel_13      c     0.000000E+00     1.906633E-01     1.500000E+00           
+         88  phase0.indep_states.states:mass_fuel_14      c     0.000000E+00     1.906633E-01     1.500000E+00           
+         89  phase0.indep_states.states:mass_fuel_15      c     0.000000E+00     1.776126E-01     1.500000E+00           
+         90  phase0.indep_states.states:mass_fuel_16      c     0.000000E+00     1.645217E-01     1.500000E+00           
+         91  phase0.indep_states.states:mass_fuel_17      c     0.000000E+00     1.645217E-01     1.500000E+00           
+         92  phase0.indep_states.states:mass_fuel_18      c     0.000000E+00     1.506447E-01     1.500000E+00           
+         93  phase0.indep_states.states:mass_fuel_19      c     0.000000E+00     1.367799E-01     1.500000E+00           
+         94  phase0.indep_states.states:mass_fuel_20      c     0.000000E+00     1.367799E-01     1.500000E+00           
+         95  phase0.indep_states.states:mass_fuel_21      c     0.000000E+00     1.226743E-01     1.500000E+00           
+         96  phase0.indep_states.states:mass_fuel_22      c     0.000000E+00     1.086124E-01     1.500000E+00           
+         97  phase0.indep_states.states:mass_fuel_23      c     0.000000E+00     1.086124E-01     1.500000E+00           
+         98  phase0.indep_states.states:mass_fuel_24      c     0.000000E+00     9.485154E-02     1.500000E+00           
+         99  phase0.indep_states.states:mass_fuel_25      c     0.000000E+00     8.117308E-02     1.500000E+00           
+        100  phase0.indep_states.states:mass_fuel_26      c     0.000000E+00     8.117308E-02     1.500000E+00           
+        101  phase0.indep_states.states:mass_fuel_27      c     0.000000E+00     6.829478E-02     1.500000E+00           
+        102  phase0.indep_states.states:mass_fuel_28      c     0.000000E+00     5.558151E-02     1.500000E+00           
+        103  phase0.indep_states.states:mass_fuel_29      c     0.000000E+00     5.558151E-02     1.500000E+00           
+        104  phase0.indep_states.states:mass_fuel_30      c     0.000000E+00     4.404368E-02     1.500000E+00           
+        105  phase0.indep_states.states:mass_fuel_31      c     0.000000E+00     3.293914E-02     1.500000E+00           
+        106  phase0.indep_states.states:mass_fuel_32      c     0.000000E+00     3.293914E-02     1.500000E+00           
+        107  phase0.indep_states.states:mass_fuel_33      c     0.000000E+00     2.273891E-02     1.500000E+00           
+        108  phase0.indep_states.states:mass_fuel_34      c     0.000000E+00     1.593423E-02     1.500000E+00           
+        109  phase0.indep_states.states:mass_fuel_35      c     0.000000E+00     1.593423E-02     1.500000E+00           
+        110  phase0.indep_states.states:mass_fuel_36      c     0.000000E+00     1.394817E-02     1.500000E+00           
+        111  phase0.indep_states.states:mass_fuel_37      c     0.000000E+00     1.134676E-02     1.500000E+00           
+        112  phase0.indep_states.states:mass_fuel_38      c     0.000000E+00     1.134676E-02     1.500000E+00           
+        113  phase0.indep_states.states:mass_fuel_39      c     0.000000E+00     8.506096E-03     1.500000E+00           
+        114  phase0.indep_states.states:mass_fuel_40      c     0.000000E+00     4.527884E-03     1.500000E+00           
+        115  phase0.indep_states.states:mass_fuel_41      c     0.000000E+00     4.527884E-03     1.500000E+00           
+        116  phase0.indep_states.states:mass_fuel_42      c     0.000000E+00     2.399408E-03     1.500000E+00           
+        117  phase0.indep_states.states:range_0           c    -1.000000E+18     6.055314E-03     1.000000E+18           
+        118  phase0.indep_states.states:range_1           c    -1.000000E+18     1.206190E-02     1.000000E+18           
+        119  phase0.indep_states.states:range_2           c    -1.000000E+18     1.206190E-02     1.000000E+18           
+        120  phase0.indep_states.states:range_3           c    -1.000000E+18     2.576204E-02     1.000000E+18           
+        121  phase0.indep_states.states:range_4           c    -1.000000E+18     3.919436E-02     1.000000E+18           
+        122  phase0.indep_states.states:range_5           c    -1.000000E+18     3.919436E-02     1.000000E+18           
+        123  phase0.indep_states.states:range_6           c    -1.000000E+18     5.913378E-02     1.000000E+18           
+        124  phase0.indep_states.states:range_7           c    -1.000000E+18     7.852236E-02     1.000000E+18           
+        125  phase0.indep_states.states:range_8           c    -1.000000E+18     7.852236E-02     1.000000E+18           
+        126  phase0.indep_states.states:range_9           c    -1.000000E+18     1.036233E-01     1.000000E+18           
+        127  phase0.indep_states.states:range_10          c    -1.000000E+18     1.287275E-01     1.000000E+18           
+        128  phase0.indep_states.states:range_11          c    -1.000000E+18     1.287275E-01     1.000000E+18           
+        129  phase0.indep_states.states:range_12          c    -1.000000E+18     1.586344E-01     1.000000E+18           
+        130  phase0.indep_states.states:range_13          c    -1.000000E+18     1.885414E-01     1.000000E+18           
+        131  phase0.indep_states.states:range_14          c    -1.000000E+18     1.885414E-01     1.000000E+18           
+        132  phase0.indep_states.states:range_15          c    -1.000000E+18     2.220264E-01     1.000000E+18           
+        133  phase0.indep_states.states:range_16          c    -1.000000E+18     2.555115E-01     1.000000E+18           
+        134  phase0.indep_states.states:range_17          c    -1.000000E+18     2.555115E-01     1.000000E+18           
+        135  phase0.indep_states.states:range_18          c    -1.000000E+18     2.912037E-01     1.000000E+18           
+        136  phase0.indep_states.states:range_19          c    -1.000000E+18     3.268959E-01     1.000000E+18           
+        137  phase0.indep_states.states:range_20          c    -1.000000E+18     3.268959E-01     1.000000E+18           
+        138  phase0.indep_states.states:range_21          c    -1.000000E+18     3.633340E-01     1.000000E+18           
+        139  phase0.indep_states.states:range_22          c    -1.000000E+18     3.997721E-01     1.000000E+18           
+        140  phase0.indep_states.states:range_23          c    -1.000000E+18     3.997721E-01     1.000000E+18           
+        141  phase0.indep_states.states:range_24          c    -1.000000E+18     4.354643E-01     1.000000E+18           
+        142  phase0.indep_states.states:range_25          c    -1.000000E+18     4.711565E-01     1.000000E+18           
+        143  phase0.indep_states.states:range_26          c    -1.000000E+18     4.711565E-01     1.000000E+18           
+        144  phase0.indep_states.states:range_27          c    -1.000000E+18     5.046416E-01     1.000000E+18           
+        145  phase0.indep_states.states:range_28          c    -1.000000E+18     5.381266E-01     1.000000E+18           
+        146  phase0.indep_states.states:range_29          c    -1.000000E+18     5.381266E-01     1.000000E+18           
+        147  phase0.indep_states.states:range_30          c    -1.000000E+18     5.680335E-01     1.000000E+18           
+        148  phase0.indep_states.states:range_31          c    -1.000000E+18     5.979404E-01     1.000000E+18           
+        149  phase0.indep_states.states:range_32          c    -1.000000E+18     5.979404E-01     1.000000E+18           
+        150  phase0.indep_states.states:range_33          c    -1.000000E+18     6.230444E-01     1.000000E+18           
+        151  phase0.indep_states.states:range_34          c    -1.000000E+18     6.481411E-01     1.000000E+18           
+        152  phase0.indep_states.states:range_35          c    -1.000000E+18     6.481411E-01     1.000000E+18           
+        153  phase0.indep_states.states:range_36          c    -1.000000E+18     6.674981E-01     1.000000E+18           
+        154  phase0.indep_states.states:range_37          c    -1.000000E+18     6.874336E-01     1.000000E+18           
+        155  phase0.indep_states.states:range_38          c    -1.000000E+18     6.874336E-01     1.000000E+18           
+        156  phase0.indep_states.states:range_39          c    -1.000000E+18     7.008661E-01     1.000000E+18           
+        157  phase0.indep_states.states:range_40          c    -1.000000E+18     7.145663E-01     1.000000E+18           
+        158  phase0.indep_states.states:range_41          c    -1.000000E+18     7.145663E-01     1.000000E+18           
+        159  phase0.indep_states.states:range_42          c    -1.000000E+18     7.205729E-01     1.000000E+18           
+        160  phase0.indep_states.states:range_43          c    -1.000000E+18     7.266282E-01     1.000000E+18           
+
+   Constraints (i - inequality, e - equality)
+      Index  Name                                                  Type          Lower           Value           Upper    Status
+          0  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -5.186082E-13    0.000000E+00          
+          1  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -4.194625E-13    0.000000E+00          
+          2  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    5.466817E-13    0.000000E+00          
+          3  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -2.292536E-13    0.000000E+00          
+          4  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -3.435853E-11    0.000000E+00          
+          5  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    3.781856E-10    0.000000E+00          
+          6  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    2.447675E-08    0.000000E+00          
+          7  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    6.576905E-08    0.000000E+00          
+          8  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    5.706810E-09    0.000000E+00          
+          9  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    9.051576E-09    0.000000E+00          
+         10  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    9.898773E-09    0.000000E+00          
+         11  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    9.357179E-09    0.000000E+00          
+         12  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    1.519171E-07    0.000000E+00          
+         13  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    1.574464E-07    0.000000E+00          
+         14  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    5.304857E-08    0.000000E+00          
+         15  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    4.912446E-08    0.000000E+00          
+         16  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    1.486460E-08    0.000000E+00          
+         17  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    8.144942E-09    0.000000E+00          
+         18  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    7.038606E-09    0.000000E+00          
+         19  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    5.951356E-09    0.000000E+00          
+         20  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    2.627553E-08    0.000000E+00          
+         21  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    7.904599E-09    0.000000E+00          
+         22  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    6.429050E-08    0.000000E+00          
+         23  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    5.255829E-08    0.000000E+00          
+         24  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    4.652270E-10    0.000000E+00          
+         25  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    1.084181E-10    0.000000E+00          
+         26  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    2.570286E-12    0.000000E+00          
+         27  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00    2.557060E-13    0.000000E+00          
+         28  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -4.575955E-14    0.000000E+00          
+         29  phase0.collocation_constraint.defects:mass_fuel          e   0.000000E+00   -4.194625E-14    0.000000E+00          
+         30  phase0.collocation_constraint.defects:range              e   0.000000E+00    3.574965E-17    0.000000E+00          
+         31  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.383310E-17    0.000000E+00          
+         32  phase0.collocation_constraint.defects:range              e   0.000000E+00    0.000000E+00    0.000000E+00          
+         33  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.377726E-16    0.000000E+00          
+         34  phase0.collocation_constraint.defects:range              e   0.000000E+00    7.559582E-14    0.000000E+00          
+         35  phase0.collocation_constraint.defects:range              e   0.000000E+00   -7.039939E-13    0.000000E+00          
+         36  phase0.collocation_constraint.defects:range              e   0.000000E+00    3.317896E-12    0.000000E+00          
+         37  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.779746E-12    0.000000E+00          
+         38  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.737767E-12    0.000000E+00          
+         39  phase0.collocation_constraint.defects:range              e   0.000000E+00    8.586904E-13    0.000000E+00          
+         40  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.942976E-12    0.000000E+00          
+         41  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.749801E-12    0.000000E+00          
+         42  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.476518E-11    0.000000E+00          
+         43  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.682472E-11    0.000000E+00          
+         44  phase0.collocation_constraint.defects:range              e   0.000000E+00    7.529731E-12    0.000000E+00          
+         45  phase0.collocation_constraint.defects:range              e   0.000000E+00    7.489181E-12    0.000000E+00          
+         46  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.144890E-12    0.000000E+00          
+         47  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.418889E-12    0.000000E+00          
+         48  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.158974E-12    0.000000E+00          
+         49  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.169695E-12    0.000000E+00          
+         50  phase0.collocation_constraint.defects:range              e   0.000000E+00    5.634504E-13    0.000000E+00          
+         51  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.014289E-12    0.000000E+00          
+         52  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.452150E-12    0.000000E+00          
+         53  phase0.collocation_constraint.defects:range              e   0.000000E+00    2.591957E-12    0.000000E+00          
+         54  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.094271E-13    0.000000E+00          
+         55  phase0.collocation_constraint.defects:range              e   0.000000E+00    3.408318E-14    0.000000E+00          
+         56  phase0.collocation_constraint.defects:range              e   0.000000E+00    4.381169E-15    0.000000E+00          
+         57  phase0.collocation_constraint.defects:range              e   0.000000E+00    1.625717E-15    0.000000E+00          
+         58  phase0.collocation_constraint.defects:range              e   0.000000E+00   -4.647454E-16    0.000000E+00          
+         59  phase0.collocation_constraint.defects:range              e   0.000000E+00   -1.692150E-15    0.000000E+00          
+         60  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         61  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         62  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         63  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         64  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         65  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         66  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         67  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         68  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         69  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00   -9.094947E-13    0.000000E+00          
+         70  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         71  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         72  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         73  phase0.continuity_comp.defect_states:mass_fuel           e   0.000000E+00    0.000000E+00    0.000000E+00          
+         74  phase0.continuity_comp.defect_states:range               e   0.000000E+00   -1.776357E-15    0.000000E+00          
+         75  phase0.continuity_comp.defect_states:range               e   0.000000E+00   -7.105427E-15    0.000000E+00          
+         76  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         77  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         78  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         79  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         80  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         81  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         82  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         83  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         84  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         85  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         86  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         87  phase0.continuity_comp.defect_states:range               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         88  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         89  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         90  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         91  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         92  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         93  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         94  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         95  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         96  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         97  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         98  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+         99  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+        100  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+        101  phase0.continuity_comp.defect_controls:alt               e   0.000000E+00    0.000000E+00    0.000000E+00          
+        102  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00    2.936851E-13    0.000000E+00          
+        103  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -7.831603E-13    0.000000E+00          
+        104  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -3.328431E-13    0.000000E+00          
+        105  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00    3.756722E-13    0.000000E+00          
+        106  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00    3.037806E-13    0.000000E+00          
+        107  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00    1.166175E-12    0.000000E+00          
+        108  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -1.625058E-12    0.000000E+00          
+        109  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -5.448471E-13    0.000000E+00          
+        110  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -1.287932E-13    0.000000E+00          
+        111  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -4.123829E-13    0.000000E+00          
+        112  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -2.219770E-12    0.000000E+00          
+        113  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00    1.096424E-12    0.000000E+00          
+        114  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -2.741061E-13    0.000000E+00          
+        115  phase0.continuity_comp.defect_control_rates:alt_rate     e   0.000000E+00   -8.810554E-13    0.000000E+00          
+        116  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -3.991941E-10    0.000000E+00          
+        117  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    4.414683E-11    0.000000E+00          
+        118  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    1.070367E-10    0.000000E+00          
+        119  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    2.762238E-11    0.000000E+00          
+        120  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -8.792496E-11    0.000000E+00          
+        121  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    7.359450E-11    0.000000E+00          
+        122  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -4.596537E-11    0.000000E+00          
+        123  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    3.063684E-11    0.000000E+00          
+        124  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -5.740277E-11    0.000000E+00          
+        125  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -1.200387E-11    0.000000E+00          
+        126  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -1.801929E-11    0.000000E+00          
+        127  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    6.991916E-11    0.000000E+00          
+        128  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00    5.396346E-11    0.000000E+00          
+        129  phase0.continuity_comp.defect_control_rates:alt_rate2    e   0.000000E+00   -3.395440E-10    0.000000E+00          
+        130  phase0.path_constraints.path:tau                         i   1.000000E-02    5.273615E-01    1.000000E+00          
+        131  phase0.path_constraints.path:tau                         i   1.000000E-02    5.354316E-01    1.000000E+00          
+        132  phase0.path_constraints.path:tau                         i   1.000000E-02    5.514798E-01    1.000000E+00          
+        133  phase0.path_constraints.path:tau                         i   1.000000E-02    5.686000E-01    1.000000E+00          
+        134  phase0.path_constraints.path:tau                         i   1.000000E-02    5.781029E-01    1.000000E+00          
+        135  phase0.path_constraints.path:tau                         i   1.000000E-02    5.781029E-01    1.000000E+00          
+        136  phase0.path_constraints.path:tau                         i   1.000000E-02    6.014512E-01    1.000000E+00          
+        137  phase0.path_constraints.path:tau                         i   1.000000E-02    6.518309E-01    1.000000E+00          
+        138  phase0.path_constraints.path:tau                         i   1.000000E-02    7.122005E-01    1.000000E+00          
+        139  phase0.path_constraints.path:tau                         i   1.000000E-02    7.490787E-01    1.000000E+00          
+        140  phase0.path_constraints.path:tau                         i   1.000000E-02    7.490787E-01    1.000000E+00          
+        141  phase0.path_constraints.path:tau                         i   1.000000E-02    8.119740E-01    1.000000E+00          
+        142  phase0.path_constraints.path:tau                         i   1.000000E-02    9.366173E-01    1.000000E+00          
+        143  phase0.path_constraints.path:tau                         i   1.000000E-02    1.000000E+00    1.000000E+00         u
+        144  phase0.path_constraints.path:tau                         i   1.000000E-02    9.588013E-01    1.000000E+00          
+        145  phase0.path_constraints.path:tau                         i   1.000000E-02    9.588013E-01    1.000000E+00          
+        146  phase0.path_constraints.path:tau                         i   1.000000E-02    8.690642E-01    1.000000E+00          
+        147  phase0.path_constraints.path:tau                         i   1.000000E-02    7.936449E-01    1.000000E+00          
+        148  phase0.path_constraints.path:tau                         i   1.000000E-02    7.934896E-01    1.000000E+00          
+        149  phase0.path_constraints.path:tau                         i   1.000000E-02    7.772424E-01    1.000000E+00          
+        150  phase0.path_constraints.path:tau                         i   1.000000E-02    7.772424E-01    1.000000E+00          
+        151  phase0.path_constraints.path:tau                         i   1.000000E-02    7.474615E-01    1.000000E+00          
+        152  phase0.path_constraints.path:tau                         i   1.000000E-02    7.446607E-01    1.000000E+00          
+        153  phase0.path_constraints.path:tau                         i   1.000000E-02    7.690700E-01    1.000000E+00          
+        154  phase0.path_constraints.path:tau                         i   1.000000E-02    7.677821E-01    1.000000E+00          
+        155  phase0.path_constraints.path:tau                         i   1.000000E-02    7.677821E-01    1.000000E+00          
+        156  phase0.path_constraints.path:tau                         i   1.000000E-02    7.570714E-01    1.000000E+00          
+        157  phase0.path_constraints.path:tau                         i   1.000000E-02    7.546135E-01    1.000000E+00          
+        158  phase0.path_constraints.path:tau                         i   1.000000E-02    7.625029E-01    1.000000E+00          
+        159  phase0.path_constraints.path:tau                         i   1.000000E-02    7.625130E-01    1.000000E+00          
+        160  phase0.path_constraints.path:tau                         i   1.000000E-02    7.625130E-01    1.000000E+00          
+        161  phase0.path_constraints.path:tau                         i   1.000000E-02    7.595954E-01    1.000000E+00          
+        162  phase0.path_constraints.path:tau                         i   1.000000E-02    7.591198E-01    1.000000E+00          
+        163  phase0.path_constraints.path:tau                         i   1.000000E-02    7.620063E-01    1.000000E+00          
+        164  phase0.path_constraints.path:tau                         i   1.000000E-02    7.626602E-01    1.000000E+00          
+        165  phase0.path_constraints.path:tau                         i   1.000000E-02    7.626602E-01    1.000000E+00          
+        166  phase0.path_constraints.path:tau                         i   1.000000E-02    7.622109E-01    1.000000E+00          
+        167  phase0.path_constraints.path:tau                         i   1.000000E-02    7.611585E-01    1.000000E+00          
+        168  phase0.path_constraints.path:tau                         i   1.000000E-02    7.620002E-01    1.000000E+00          
+        169  phase0.path_constraints.path:tau                         i   1.000000E-02    7.643279E-01    1.000000E+00          
+        170  phase0.path_constraints.path:tau                         i   1.000000E-02    7.643279E-01    1.000000E+00          
+        171  phase0.path_constraints.path:tau                         i   1.000000E-02    7.657764E-01    1.000000E+00          
+        172  phase0.path_constraints.path:tau                         i   1.000000E-02    7.622064E-01    1.000000E+00          
+        173  phase0.path_constraints.path:tau                         i   1.000000E-02    7.612872E-01    1.000000E+00          
+        174  phase0.path_constraints.path:tau                         i   1.000000E-02    7.681260E-01    1.000000E+00          
+        175  phase0.path_constraints.path:tau                         i   1.000000E-02    7.681260E-01    1.000000E+00          
+        176  phase0.path_constraints.path:tau                         i   1.000000E-02    7.727217E-01    1.000000E+00          
+        177  phase0.path_constraints.path:tau                         i   1.000000E-02    7.606913E-01    1.000000E+00          
+        178  phase0.path_constraints.path:tau                         i   1.000000E-02    7.569177E-01    1.000000E+00          
+        179  phase0.path_constraints.path:tau                         i   1.000000E-02    7.781160E-01    1.000000E+00          
+        180  phase0.path_constraints.path:tau                         i   1.000000E-02    7.781160E-01    1.000000E+00          
+        181  phase0.path_constraints.path:tau                         i   1.000000E-02    7.908316E-01    1.000000E+00          
+        182  phase0.path_constraints.path:tau                         i   1.000000E-02    7.502938E-01    1.000000E+00          
+        183  phase0.path_constraints.path:tau                         i   1.000000E-02    7.360522E-01    1.000000E+00          
+        184  phase0.path_constraints.path:tau                         i   1.000000E-02    7.981572E-01    1.000000E+00          
+        185  phase0.path_constraints.path:tau                         i   1.000000E-02    7.981572E-01    1.000000E+00          
+        186  phase0.path_constraints.path:tau                         i   1.000000E-02    8.527503E-01    1.000000E+00          
+        187  phase0.path_constraints.path:tau                         i   1.000000E-02    7.719083E-01    1.000000E+00          
+        188  phase0.path_constraints.path:tau                         i   1.000000E-02    4.674623E-01    1.000000E+00          
+        189  phase0.path_constraints.path:tau                         i   1.000000E-02    2.722888E-01    1.000000E+00          
+        190  phase0.path_constraints.path:tau                         i   1.000000E-02    2.722888E-01    1.000000E+00          
+        191  phase0.path_constraints.path:tau                         i   1.000000E-02    1.655224E-01    1.000000E+00          
+        192  phase0.path_constraints.path:tau                         i   1.000000E-02    1.179567E-01    1.000000E+00          
+        193  phase0.path_constraints.path:tau                         i   1.000000E-02    1.474272E-01    1.000000E+00          
+        194  phase0.path_constraints.path:tau                         i   1.000000E-02    1.634289E-01    1.000000E+00          
+        195  phase0.path_constraints.path:tau                         i   1.000000E-02    1.634289E-01    1.000000E+00          
+        196  phase0.path_constraints.path:tau                         i   1.000000E-02    1.718500E-01    1.000000E+00          
+        197  phase0.path_constraints.path:tau                         i   1.000000E-02    1.871229E-01    1.000000E+00          
+        198  phase0.path_constraints.path:tau                         i   1.000000E-02    2.005746E-01    1.000000E+00          
+        199  phase0.path_constraints.path:tau                         i   1.000000E-02    2.067283E-01    1.000000E+00          
+        200  phase0.path_constraints.path:tau                         i   1.000000E-02    2.067283E-01    1.000000E+00          
+        201  phase0.path_constraints.path:tau                         i   1.000000E-02    2.091820E-01    1.000000E+00          
+        202  phase0.path_constraints.path:tau                         i   1.000000E-02    2.135183E-01    1.000000E+00          
+        203  phase0.path_constraints.path:tau                         i   1.000000E-02    2.174401E-01    1.000000E+00          
+        204  phase0.path_constraints.path:tau                         i   1.000000E-02    2.193424E-01    1.000000E+00          
+        205  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        206  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        207  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        208  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        209  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        210  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        211  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        212  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        213  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        214  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        215  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.000000E+00    1.000000E+00         u
+        216  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    9.956633E-01    1.000000E+00          
+        217  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    9.300516E-01    1.000000E+00          
+        218  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.165351E-01    1.000000E+00          
+        219  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    5.149918E-01    1.000000E+00          
+        220  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    5.149918E-01    1.000000E+00          
+        221  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.721529E-01    1.000000E+00          
+        222  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    8.831920E-02    1.000000E+00          
+        223  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    6.121598E-02    1.000000E+00          
+        224  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.735100E-02    1.000000E+00          
+        225  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.735100E-02    1.000000E+00          
+        226  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.731763E-02    1.000000E+00          
+        227  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.069840E-02    1.000000E+00          
+        228  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.437198E-02    1.000000E+00          
+        229  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.763821E-02    1.000000E+00          
+        230  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.763821E-02    1.000000E+00          
+        231  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.426153E-04    1.000000E+00          
+        232  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -3.713474E-04    1.000000E+00          
+        233  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.069512E-02    1.000000E+00          
+        234  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    8.873433E-03    1.000000E+00          
+        235  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    8.873433E-03    1.000000E+00          
+        236  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    3.777839E-03    1.000000E+00          
+        237  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    3.486423E-03    1.000000E+00          
+        238  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.016942E-03    1.000000E+00          
+        239  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.017263E-03    1.000000E+00          
+        240  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.017263E-03    1.000000E+00          
+        241  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    5.577873E-03    1.000000E+00          
+        242  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    3.579278E-03    1.000000E+00          
+        243  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    4.811518E-03    1.000000E+00          
+        244  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.679909E-03    1.000000E+00          
+        245  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    7.679909E-03    1.000000E+00          
+        246  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    8.516382E-03    1.000000E+00          
+        247  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.057062E-03    1.000000E+00          
+        248  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.252810E-03    1.000000E+00          
+        249  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.196271E-02    1.000000E+00          
+        250  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.196271E-02    1.000000E+00          
+        251  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.584144E-02    1.000000E+00          
+        252  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -4.139861E-03    1.000000E+00          
+        253  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -3.785860E-03    1.000000E+00          
+        254  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.720660E-02    1.000000E+00          
+        255  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    2.720660E-02    1.000000E+00          
+        256  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    3.837883E-02    1.000000E+00          
+        257  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -2.596797E-02    1.000000E+00          
+        258  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -2.814131E-02    1.000000E+00          
+        259  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    6.592886E-02    1.000000E+00          
+        260  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    6.592886E-02    1.000000E+00          
+        261  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00    1.274782E-01    1.000000E+00          
+        262  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -2.373888E-02    1.000000E+00          
+        263  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -4.245632E-01    1.000000E+00          
+        264  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -6.958234E-01    1.000000E+00          
+        265  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -6.958234E-01    1.000000E+00          
+        266  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -8.678427E-01    1.000000E+00          
+        267  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        268  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        269  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.958096E-01    1.000000E+00          
+        270  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.958096E-01    1.000000E+00          
+        271  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.981912E-01    1.000000E+00          
+        272  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        273  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        274  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.999700E-01    1.000000E+00          
+        275  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.999700E-01    1.000000E+00          
+        276  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        277  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+        278  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -9.999871E-01    1.000000E+00          
+        279  phase0.path_constraints.path:alt_rate                    i  -1.000000E+00   -1.000000E+00    1.000000E+00         l
+
+--------------------------------------------------------------------------------
+
+simulating  phase0
+phase0 simulation complete
+[726.62816696]
+</pre></div></div><div class="figure">
+<img alt="../_images/doc_plot_1.png" src="../_images/doc_plot_1.png" />
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="bettsaircraft1995" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[BettsAircraft1995]</a></td><td>Betts, John T., and Evin J. Cramer. “Application of Direct Transcription to Commercial Aircraft Trajectory Optimization.” Journal of Guidance, Control, and Dynamics 18.1 (1995): 151–159.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="seywald1994" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Seywald1994]</a></td><td>Seywald, Hans. “Trajectory Optimization Based on Differential Inclusion (Revised).” Journal of Guidance, Control, and Dynamics 17.3 (1994): 480–487.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kumar1996" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Kumar1996]</a></td><td>Kumar, Renjith R, and Hans Seywald. “Should Controls Be Eliminated While Solving Optimal Control Problems via Direct Methods?” Journal of Guidance, Control, and Dynamics 19.2 (1996): 418–423.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="fahrooross2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[FahrooRoss2001]</a></td><td>Fahroo, F., and Ross, I. M., “A Second Look at Approximating Differential Inclusions,” Journal of Guidance, Control, and Dynamics, Vol. 24, No. 1, 2001, pp. 131–133.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_phase_cannonball.html" title="Multi-Phase Cannonball"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ssto_moon_linear_tangent.html" title="SSTO Lunar Ascent with Linear Tangent Guidance"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="examples.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

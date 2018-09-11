@@ -1,0 +1,371 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dymos.utils.simulation.phase_simulation_results &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dymos.utils.simulation.phase_simulation_results</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">iteritems</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">openmdao.api</span> <span class="k">import</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">Group</span><span class="p">,</span> <span class="n">IndepVarComp</span><span class="p">,</span> <span class="n">SqliteRecorder</span><span class="p">,</span> <span class="n">CaseReader</span>
+<span class="kn">from</span> <span class="nn">openmdao.utils.units</span> <span class="k">import</span> <span class="n">valid_units</span><span class="p">,</span> <span class="n">convert_units</span>
+
+<span class="kn">from</span> <span class="nn">dymos.utils.misc</span> <span class="k">import</span> <span class="n">get_rate_units</span><span class="p">,</span> <span class="n">convert_to_ascii</span>
+
+
+<div class="viewcode-block" id="PhaseSimulationResults"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/phase_simulation_results.html#dymos.utils.simulation.phase_simulation_results.PhaseSimulationResults">[docs]</a><span class="k">class</span> <span class="nc">PhaseSimulationResults</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PhaseSimulationResults is returned by phase.simulate.  It&#39;s primary</span>
+<span class="sd">    purpose is to hold the dictionary of results from the integration</span>
+<span class="sd">    and to provide a `get_values` interface that is equivalent to that</span>
+<span class="sd">    in Phase (except that it has no knowledge of nodes).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str or None</span>
+<span class="sd">        A filepath from which PhaseSimulationResults are to be loaded.</span>
+<span class="sd">    time_options : {str: TimeOptionsDictionary} or None</span>
+<span class="sd">        The options dictionary for the phase tied to this instance of simulation results.  If</span>
+<span class="sd">        being loaded from a file, this is not needed at instantiation.</span>
+<span class="sd">    state_options : dict of {str: StateOptionsDictionary} or None</span>
+<span class="sd">        The options dictionary for the phase tied to this instance of simulation results.  If</span>
+<span class="sd">        being loaded from a file, this is not needed at instantiation.</span>
+<span class="sd">    control_options : dict of {str: ControlOptionsDictionary} or None</span>
+<span class="sd">        The options dictionary for the phase tied to this instance of simulation results.  If</span>
+<span class="sd">        being loaded from a file, this is not needed at instantiation.</span>
+<span class="sd">    design_parameter_options : dict of {str: DesignParameterOptionsDictionary} or None</span>
+<span class="sd">        The options dictionary for the phase tied to this instance of simulation results.  If</span>
+<span class="sd">        being loaded from a file, this is not needed at instantiation.</span>
+<span class="sd">    design_parameter_options : dict of {str: DesignParameterOptionsDictionary} or None</span>
+<span class="sd">        The options dictionary for the phase tied to this instance of simulation results.  If</span>
+<span class="sd">        being loaded from a file, this is not needed at instantiation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhaseSimulationResults.__init__"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/phase_simulation_results.html#dymos.utils.simulation.phase_simulation_results.PhaseSimulationResults.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">control_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">design_parameter_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_parameter_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_options</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">time_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">time_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_options</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">state_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">state_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_options</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">control_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">control_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">design_parameter_options</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">design_parameter_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+            <span class="n">design_parameter_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_parameter_options</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">input_parameter_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+            <span class="n">input_parameter_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;indep&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;controls&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;control_rates&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                        <span class="s1">&#39;design_parameters&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;input_parameters&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;ode&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_results</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhaseSimulationResults.record_results"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/phase_simulation_results.html#dymos.utils.simulation.phase_simulation_results.PhaseSimulationResults.record_results">[docs]</a>    <span class="k">def</span> <span class="nf">record_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ode_class</span><span class="p">,</span> <span class="n">ode_init_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Record the outputs to the given filename.  This is done by instantiating a new</span>
+<span class="sd">        problem with an IndepVarComp for the time, states, controls, and control rates, as</span>
+<span class="sd">        well as an instance of the given ODE class (instantiated with the number of nodes equal</span>
+<span class="sd">        to the number of times in the outputs).</span>
+
+<span class="sd">        The system is populated with data from outputs, has a recorder attached, and is executed</span>
+<span class="sd">        via problem.run_model.  This data can then be retrieved from the `system_cases` attribute</span>
+<span class="sd">        of CaseReader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        phase_name : str</span>
+<span class="sd">            The name of the phase whose simulation results are being recorded.</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The filename to which the recording should be saved.</span>
+<span class="sd">        ode_class : openmdao.System</span>
+<span class="sd">            A system class with the appropriate ODE metadata attached via the dymos declare_time,</span>
+<span class="sd">            declare_state, and declare_parameter decorators.</span>
+<span class="sd">        ode_init_kwargs : dict or None</span>
+<span class="sd">            A dictionary of keyword arguments with which ode_class should be instantiated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">init_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">ode_init_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ode_init_kwargs</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Group</span><span class="p">())</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">ode_sys</span> <span class="o">=</span> <span class="n">ode_class</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="o">**</span><span class="n">init_kwargs</span><span class="p">)</span>
+        <span class="n">ivc</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">,</span> <span class="n">subsys</span><span class="o">=</span><span class="n">IndepVarComp</span><span class="p">(),</span> <span class="n">promotes_outputs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">])</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_subsystem</span><span class="p">(</span><span class="s1">&#39;ode&#39;</span><span class="p">,</span> <span class="n">subsys</span><span class="o">=</span><span class="n">ode_sys</span><span class="p">)</span>
+
+        <span class="c1"># Connect times</span>
+        <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_options</span><span class="p">[</span><span class="s1">&#39;targets&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># Connect states</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_options</span><span class="p">):</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;states:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span> <span class="n">units</span><span class="o">=</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;states:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                            <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;targets&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># Connect controls</span>
+        <span class="n">sys_param_options</span> <span class="o">=</span> <span class="n">ode_sys</span><span class="o">.</span><span class="n">ode_options</span><span class="o">.</span><span class="n">_parameters</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_options</span><span class="p">):</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;controls:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;controls:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                            <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sys_param_options</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;targets&#39;</span><span class="p">]],</span>
+                            <span class="n">src_indices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+            <span class="n">rate_units</span> <span class="o">=</span> <span class="n">get_rate_units</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">],</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span>
+                           <span class="n">units</span><span class="o">=</span><span class="n">rate_units</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;rate_param&#39;</span><span class="p">]:</span>
+                <span class="n">rate_targets</span> <span class="o">=</span> <span class="n">sys_param_options</span><span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;rate_param&#39;</span><span class="p">]][</span><span class="s1">&#39;targets&#39;</span><span class="p">]</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                                <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">rate_targets</span><span class="p">],</span>
+                                <span class="n">src_indices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+            <span class="n">rate2_units</span> <span class="o">=</span> <span class="n">get_rate_units</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">],</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span>
+                           <span class="n">units</span><span class="o">=</span><span class="n">rate2_units</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;rate2_param&#39;</span><span class="p">]:</span>
+                <span class="n">rate2_targets</span> <span class="o">=</span> <span class="n">sys_param_options</span><span class="p">[</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;rate2_param&#39;</span><span class="p">]][</span><span class="s1">&#39;targets&#39;</span><span class="p">]</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                                <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">rate2_targets</span><span class="p">],</span>
+                                <span class="n">src_indices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="c1"># Connect design parameters</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">design_parameter_options</span><span class="p">):</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;design_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;design_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                            <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sys_param_options</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;targets&#39;</span><span class="p">]],</span>
+                            <span class="n">src_indices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="c1"># Connect input parameters</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_parameter_options</span><span class="p">):</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+            <span class="n">ivc</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;input_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                           <span class="n">val</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,)</span> <span class="o">+</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]),</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;input_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                            <span class="p">[</span><span class="s1">&#39;ode.</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sys_param_options</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;targets&#39;</span><span class="p">]],</span>
+                            <span class="n">src_indices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_recorder</span><span class="p">(</span><span class="n">SqliteRecorder</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">recording_options</span><span class="p">[</span><span class="s1">&#39;record_metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">recording_options</span><span class="p">[</span><span class="s1">&#39;record_outputs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Assign times</span>
+        <span class="n">p</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+
+        <span class="c1"># Assign states</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_options</span><span class="p">:</span>
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;states:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Assign controls</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_options</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;controls:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;controls:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">shape</span><span class="p">)</span>
+
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+                <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_rate&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span> <span class="n">shape</span><span class="p">)</span>
+
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;control_rates:</span><span class="si">{0}</span><span class="s1">_rate2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> \
+                <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">_rate2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span> <span class="n">shape</span><span class="p">)</span>
+
+        <span class="c1"># Assign design parameters</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">design_parameter_options</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;design_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;design_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">shape</span><span class="p">)</span>
+
+        <span class="c1"># Assign input parameters</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_parameter_options</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;input_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">p</span><span class="p">[</span><span class="s1">&#39;input_parameters:</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">shape</span><span class="p">)</span>
+
+        <span class="c1"># Populate outputs of ODE</span>
+        <span class="n">prom2abs_ode_outputs</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ode</span><span class="o">.</span><span class="n">_var_allprocs_prom2abs_list</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">prom_name</span><span class="p">,</span> <span class="n">abs_name</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">prom2abs_ode_outputs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="n">abs_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">p</span><span class="p">[</span><span class="n">abs_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">prom_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p</span><span class="p">[</span><span class="n">abs_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">prom_name</span><span class="p">),</span> <span class="n">p</span><span class="p">[</span><span class="n">abs_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="c1"># Run model to record file</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">run_model</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load PhaseSimulationResults from the given file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The path of the file from which to load the simulation results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cr</span> <span class="o">=</span> <span class="n">CaseReader</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">case</span> <span class="o">=</span> <span class="n">cr</span><span class="o">.</span><span class="n">system_cases</span><span class="o">.</span><span class="n">get_case</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">loaded_outputs</span> <span class="o">=</span> <span class="n">cr</span><span class="o">.</span><span class="n">list_outputs</span><span class="p">(</span><span class="n">case</span><span class="o">=</span><span class="n">case</span><span class="p">,</span> <span class="n">explicit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">implicit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">units</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">out_stream</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;indep&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;controls&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;control_rates&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                        <span class="s1">&#39;design_parameters&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;input_parameters&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;ode&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="k">for</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">loaded_outputs</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;inputs.&#39;</span><span class="p">):</span>
+                <span class="n">output_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;inputs.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">output_name</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;indep&#39;</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span>
+                <span class="k">if</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;states:&#39;</span><span class="p">):</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;states&#39;</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;states:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;controls:&#39;</span><span class="p">):</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;controls&#39;</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;controls:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;control_rates:&#39;</span><span class="p">):</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;control_rates&#39;</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;control_rates:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;design_parameters:&#39;</span><span class="p">):</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;design_parameters&#39;</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;design_parameters:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># elif output_name.startswith(&#39;traj_design_parameters:&#39;):</span>
+                <span class="c1">#     var_type = &#39;traj_design_parameters&#39;</span>
+                <span class="c1">#     var_name = output_name.replace(&#39;traj_design_parameters:&#39;, &#39;&#39;, 1)</span>
+
+                <span class="n">val</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="n">output_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;ode.&#39;</span><span class="p">):</span>
+                <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;ode&#39;</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="n">output_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;ode.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;unexpected output in file </span><span class="si">{1}</span><span class="s1">: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span>
+                                                                               <span class="n">filename</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_to_ascii</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+<div class="viewcode-block" id="PhaseSimulationResults.get_values"><a class="viewcode-back" href="../../../../_srcdocs/packages/utils.simulation/phase_simulation_results.html#dymos.utils.simulation.phase_simulation_results.PhaseSimulationResults.get_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">valid_units</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> is not a valid set of units.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">))</span>
+
+        <span class="n">var_in_phase</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;indep&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;states&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;controls&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;controls&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;design_parameters&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;design_parameters&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;input_parameters&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;input_parameters&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;control_rates&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;control_rates&#39;</span>
+        <span class="k">elif</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;ode&#39;</span><span class="p">]:</span>
+            <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;ode&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">var_in_phase</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">var_in_phase</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Variable &quot;</span><span class="si">{0}</span><span class="s1">&quot; not found in phase &#39;</span>
+                             <span class="s1">&#39;simulation results.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">convert_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">var_type</span><span class="p">][</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">],</span>
+                               <span class="n">units</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

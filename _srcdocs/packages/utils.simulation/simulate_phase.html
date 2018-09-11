@@ -1,0 +1,236 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>simulate_phase.py &#8212; dymos 0.11.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="std_out_observer.py" href="std_out_observer.html" />
+    <link rel="prev" title="scipy_ode_integrator.py" href="scipy_ode_integrator.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std_out_observer.html" title="std_out_observer.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="scipy_ode_integrator.html" title="scipy_ode_integrator.py"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Source Docs</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../dymos.utils.simulation.html" accesskey="U">dymos.utils.simulation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="scipy_ode_integrator.html"
+                        title="previous chapter">scipy_ode_integrator.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="std_out_observer.html"
+                        title="next chapter">std_out_observer.py</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/_srcdocs/packages/utils.simulation/simulate_phase.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dymos.utils.simulation.simulate_phase">
+<span id="simulate-phase-py"></span><span id="dymos-utils-simulation-simulate-phase-py"></span><span id="index-0"></span><h1>simulate_phase.py<a class="headerlink" href="#module-dymos.utils.simulation.simulate_phase" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dymos.utils.simulation.simulate_phase.simulate_phase">
+<code class="descclassname">dymos.utils.simulation.simulate_phase.</code><code class="descname">simulate_phase</code><span class="sig-paren">(</span><em>phase_name</em>, <em>ode_class</em>, <em>time_options</em>, <em>state_options</em>, <em>control_options</em>, <em>design_parameter_options</em>, <em>input_parameter_options</em>, <em>time_values</em>, <em>state_values</em>, <em>control_values</em>, <em>design_parameter_values</em>, <em>input_parameter_values</em>, <em>ode_init_kwargs</em>, <em>grid_data</em>, <em>times</em>, <em>record=True</em>, <em>record_file=None</em>, <em>observer=None</em>, <em>integrator='vode'</em>, <em>integrator_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/simulate_phase.html#simulate_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.simulate_phase.simulate_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a way of simulating a phase that can be called in a multiprocessing pool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>phase_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The name of the phase being simulated.</p>
+</dd>
+<dt><strong>ode_class</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">The OpenMDAO system class providing the ODE to be simulated.</p>
+</dd>
+<dt><strong>time_options</strong> <span class="classifier-delimiter">:</span> <span class="classifier">OptionsDictionary</span></dt>
+<dd><p class="first last">The time options for the phase being simulated.</p>
+</dd>
+<dt><strong>state_options</strong> <span class="classifier-delimiter">:</span> <span class="classifier">OptionsDictionary</span></dt>
+<dd><p class="first last">The state options for the phase being simulated.</p>
+</dd>
+<dt><strong>control_options</strong> <span class="classifier-delimiter">:</span> <span class="classifier">OptionsDictionary</span></dt>
+<dd><p class="first last">The control options for the phase being simulated.</p>
+</dd>
+<dt><strong>design_parameter_options</strong> <span class="classifier-delimiter">:</span> <span class="classifier">OptionsDictionary</span></dt>
+<dd><p class="first last">The design parameter options for the phase being simulated.</p>
+</dd>
+<dt><strong>input_parameter_options</strong> <span class="classifier-delimiter">:</span> <span class="classifier">OptionsDictionary</span></dt>
+<dd><p class="first last">The input parameter options for the phase being simulated.</p>
+</dd>
+<dt><strong>time_values</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd><p class="first last">The time values from the phase being simulated.</p>
+</dd>
+<dt><strong>state_values</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str</span></dt>
+<dd><p class="first last">A dictionary keyed by state name containing the values of the state at the state input
+nodes of the given phase.</p>
+</dd>
+<dt><strong>control_values</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str</span></dt>
+<dd><p class="first last">A dictionary keyed by control name containing the values of the state at all
+nodes of the given phase.</p>
+</dd>
+<dt><strong>design_parameter_values</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str</span></dt>
+<dd><p class="first last">A dictionary keyed by design parameter name containing the values of all design parameters.</p>
+</dd>
+<dt><strong>input_parameter_values</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of {str</span></dt>
+<dd><p class="first last">A dictionary keyed by design parameter name containing the values of all input parameters.</p>
+</dd>
+<dt><strong>ode_init_kwargs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Keyword initialization arguments for the ODE class.</p>
+</dd>
+<dt><strong>grid_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GridData</span></dt>
+<dd><p class="first last">GridData object associated with the phase to be simulated.</p>
+</dd>
+<dt><strong>times</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, int, Sequence</span></dt>
+<dd><p class="first last">The times at which outputs of the ODE are desired.  If given as an int n, return values
+at n equally distributed points in time throughout the phase.  If str, must be a valid
+node subset for the phase.  If sequence, provides the times at which ODE outputs are
+desired.</p>
+</dd>
+<dt><strong>record</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">If True, record the results of the simulation.</p>
+</dd>
+<dt><strong>record_file</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">If given, provides the file path for the recorded simulation.  Defaults to
+‘&lt;phase_name&gt;_sim.db’.</p>
+</dd>
+<dt><strong>observer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, None</span></dt>
+<dd><p class="first last">The observer function used to monitor the explicit simulation.</p>
+</dd>
+<dt><strong>integrator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The integrator to be used by scipy.ode.  This is one of:
+‘vode’, ‘lsoda’, ‘dopri5’, or ‘dopri853’.</p>
+</dd>
+<dt><strong>integrator_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Parameters specific to the chosen integrator.  See the scipy.integrate.ode
+documentation for details.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dict of {str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">PhaseSimulationResults}</span></dt>
+<dd><p class="first last">The PhaseSimulationResults object resulting from each Phase simulation, keyed by phase name.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dymos.utils.simulation.simulate_phase.simulate_phase_map_unpack">
+<code class="descclassname">dymos.utils.simulation.simulate_phase.</code><code class="descname">simulate_phase_map_unpack</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dymos/utils/simulation/simulate_phase.html#simulate_phase_map_unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dymos.utils.simulation.simulate_phase.simulate_phase_map_unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides argument unpacking for versions of Python without multiprocessing.Pool.starmap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>args</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
+<dd><p class="first last">A tuple of the positional arguments to be sent to simulate_phase.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dict of {str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">PhaseSimulationResults}</span></dt>
+<dd><p class="first last">The PhaseSimulationResults object resulting from each Phase simulation, keyed by phase name.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std_out_observer.html" title="std_out_observer.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="scipy_ode_integrator.html" title="scipy_ode_integrator.py"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">dymos 0.11.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Source Docs</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../dymos.utils.simulation.html" >dymos.utils.simulation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, National Aeronautics and Space Administration.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+  </body>
+</html>

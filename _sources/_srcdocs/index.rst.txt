@@ -1,0 +1,27 @@
+:orphan:
+
+.. _source_documentation:
+
+********************
+Source Docs
+********************
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   packages/dymos.examples.aircraft_steady_flight
+   packages/dymos.examples.brachistochrone
+   packages/dymos.examples.double_integrator
+   packages/dymos.examples.finite_burn_orbit_raise
+   packages/dymos.examples.min_time_climb
+   packages/dymos.examples.ssto
+   packages/dymos.models.atmosphere
+   packages/dymos.models.eom
+   packages/dymos.phases
+   packages/dymos.phases.components
+   packages/dymos.phases.optimizer_based
+   packages/dymos.trajectory
+   packages/dymos.utils
+   packages/dymos.utils.simulation
+   packages/dymos.utils.simulation.components

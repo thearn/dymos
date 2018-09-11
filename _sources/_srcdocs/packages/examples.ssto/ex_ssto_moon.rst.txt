@@ -1,0 +1,16 @@
+.. index:: ex_ssto_moon.py
+
+.. _dymos.examples.ssto.ex_ssto_moon.py:
+
+ex_ssto_moon.py
+---------------
+
+.. automodule:: dymos.examples.ssto.ex_ssto_moon
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

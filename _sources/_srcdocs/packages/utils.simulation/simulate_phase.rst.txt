@@ -1,0 +1,16 @@
+.. index:: simulate_phase.py
+
+.. _dymos.utils.simulation.simulate_phase.py:
+
+simulate_phase.py
+-----------------
+
+.. automodule:: dymos.utils.simulation.simulate_phase
+   :members:
+   :undoc-members:
+   :special-members: __init__, __contains__, __iter__, __setitem__, __getitem__
+   :show-inheritance:
+   :inherited-members:
+
+.. toctree::
+   :maxdepth: 1

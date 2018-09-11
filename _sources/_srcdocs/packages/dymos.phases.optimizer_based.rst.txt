@@ -1,0 +1,9 @@
+dymos.phases.optimizer_based
+----------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    phases.optimizer_based/gauss_lobatto_phase
+    phases.optimizer_based/optimizer_based_phase_base
+    phases.optimizer_based/radau_pseudospectral_phase
