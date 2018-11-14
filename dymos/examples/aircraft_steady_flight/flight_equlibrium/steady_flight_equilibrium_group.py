@@ -38,12 +38,12 @@ class SteadyFlightEquilibriumGroup(Group):
 
         self.connect('alpha', ('aero.alpha'))
         self.connect('eta', ('aero.eta'))
-
+        delta = 1e-6
         bal.add_balance('alpha', units='rad', eq_units=None, lhs_name='CL_eq',
-                        rhs_name='CL', val=0.01*np.ones(nn), lower=-20, upper=30, res_ref=1.0)
+                        rhs_name='CL', val=0.01*np.ones(nn), lower=np.radians(-20+ delta), upper=np.radians(30 - delta), res_ref=1.0)
 
         bal.add_balance('eta', units='rad', val=0.01*np.ones(nn), eq_units=None, lhs_name='CM',
-                        lower=-30, upper=30, res_ref=1.0)
+                        lower=np.radians(-30 + delta), upper=np.radians(30 - delta), res_ref=1.0)
 
         self.connect('aero.CL', 'alpha_eta_balance.CL')
         self.connect('aero.CD', 'thrust_eq_comp.CD')
@@ -57,8 +57,8 @@ class SteadyFlightEquilibriumGroup(Group):
         self.nonlinear_solver.options['solve_subsystems'] = True
         self.nonlinear_solver.options['err_on_maxiter'] = True
         self.nonlinear_solver.options['max_sub_solves'] = 10
-        self.nonlinear_solver.options['maxiter'] = 150
-        self.nonlinear_solver.options['iprint'] = -1
+        self.nonlinear_solver.options['maxiter'] = 10
+        self.nonlinear_solver.options['iprint'] = 0
         # self.nonlinear_solver.linesearch = ArmijoGoldsteinLS()
         self.nonlinear_solver.linesearch = BoundsEnforceLS()
-        self.nonlinear_solver.linesearch.options['print_bound_enforce'] = True
+        self.nonlinear_solver.linesearch.options['print_bound_enforce'] = False
