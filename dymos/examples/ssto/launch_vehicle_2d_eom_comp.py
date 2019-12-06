@@ -86,6 +86,11 @@ class LaunchVehicle2DEOM(om.ExplicitComponent):
                         desc='mass rate of change',
                         units='kg/s')
 
+        self.add_output('q',
+                        val=np.zeros(nn),
+                        desc='dynamic pressure',
+                        units='N/m**2')
+
         # Setup partials
         ar = np.arange(self.options['num_nodes'])
 
@@ -107,6 +112,10 @@ class LaunchVehicle2DEOM(om.ExplicitComponent):
         self.declare_partials(of='mdot', wrt='thrust', rows=ar, cols=ar)
         self.declare_partials(of='mdot', wrt='Isp', rows=ar, cols=ar)
 
+        self.declare_partials(of='q', wrt='vx', rows=ar, cols=ar)
+        self.declare_partials(of='q', wrt='vy', rows=ar, cols=ar)
+        self.declare_partials(of='q', wrt='rho', rows=ar, cols=ar)
+
     def compute(self, inputs, outputs):
         theta = inputs['theta']
         cos_theta = np.cos(theta)
@@ -126,6 +135,8 @@ class LaunchVehicle2DEOM(om.ExplicitComponent):
         outputs['vxdot'] = (F_T * cos_theta - 0.5 * CDA * rho * vx**2) / m
         outputs['vydot'] = (F_T * sin_theta - 0.5 * CDA * rho * vy**2) / m - g
         outputs['mdot'] = -F_T / (g * Isp)
+
+        outputs['q'] = 0.5 * rho * (vx**2 + vy**2)
 
     def compute_partials(self, inputs, jacobian):
         theta = inputs['theta']
@@ -155,3 +166,10 @@ class LaunchVehicle2DEOM(om.ExplicitComponent):
 
         jacobian['mdot', 'thrust'] = -1.0 / (g * Isp)
         jacobian['mdot', 'Isp'] = F_T / (g * Isp**2)
+
+        jacobian['q', 'rho'] = 0.5 * (vx**2 + vy**2) / 1.0
+        jacobian['q', 'vx'] = rho*vx / 1.0
+        jacobian['q', 'vy'] = rho*vy / 1.0
+
+
+
