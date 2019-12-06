@@ -15,8 +15,8 @@ class ConstraintAggregator(om.ExplicitComponent):
         self.options.declare('aggregator', types=str)
         self.options.declare('rho', default=50.0, types=float)
         self.options.declare('reversed', default=False, types=bool)
-        self.options.declare('offset', types=float, default=39500.)
-        self.options.declare('scale', types=float, default=35000.)
+        self.options.declare('offset', types=float, default=36500.)
+        self.options.declare('scale', types=float, default=20000.)
         self.options.declare('nn', types=int)
 
     def setup(self):
@@ -79,14 +79,14 @@ class LaunchVehicleODE(om.Group):
 
         self.connect('atmos.rho', 'eom.rho')
 
-        # self.add_subsystem('const1', ConstraintAggregator(aggregator='PRePU', 
-        #                                                   rho=2.0, 
-        #                                                   nn=nn))
+        self.add_subsystem('const1', ConstraintAggregator(aggregator='RePU', 
+                                                          rho=1.5, 
+                                                          nn=nn))
 
         # self.add_subsystem('const1', ConstraintAggregator(aggregator='KS', 
         #                                                   rho=175.0, 
         #                                                   nn=nn))
 
-        #self.connect('eom.q', 'const1.g')
+        self.connect('eom.q', 'const1.g')
 
 
