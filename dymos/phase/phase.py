@@ -65,7 +65,12 @@ class Phase(om.Group):
             self.user_polynomial_control_options = {}
             self.user_design_parameter_options = {}
             self.user_input_parameter_options = {}
-            self.user_traj_parameter_options = {}
+
+            self.refine_options = {'refine': False,
+                                   'iteration_limit': 10,
+                                   'tolerance': 1e-4,
+                                   'min_order': 3,
+                                   'max_order': 14}
 
             self._initial_boundary_constraints = {}
             self._final_boundary_constraints = {}
@@ -83,9 +88,8 @@ class Phase(om.Group):
             self.user_polynomial_control_options = from_phase.polynomial_control_options.copy()
             self.user_design_parameter_options = from_phase.design_parameter_options.copy()
             self.user_input_parameter_options = from_phase.input_parameter_options.copy()
-            # Don't copy over the trajectory parameters.  The owning trajectory object will
-            # handle that.
-            self.user_traj_parameter_options = {}
+
+            self.refine_options = from_phase.refine_options.copy()
 
             self._initial_boundary_constraints = from_phase._initial_boundary_constraints.copy()
             self._final_boundary_constraints = from_phase._final_boundary_constraints.copy()
@@ -324,9 +328,6 @@ class Phase(om.Group):
             raise ValueError('{0} has already been added as an input parameter.'.format(name))
         if name in self.user_polynomial_control_options:
             raise ValueError('{0} has already been added as a polynomial control.'.format(name))
-        if name in self.user_traj_parameter_options:
-            raise ValueError('{0} has already been added as a trajectory-level '
-                             'parameter.'.format(name))
 
     def add_control(self, name, units=_unspecified, desc=_unspecified, opt=_unspecified,
                     fix_initial=_unspecified, fix_final=_unspecified, targets=_unspecified,
@@ -412,9 +413,9 @@ class Phase(om.Group):
         rate and rate2 continuity are not enforced for input controls.
 
         """
-        self.check_parameter(name)
 
         if name not in self.user_control_options:
+            self.check_parameter(name)
             self.user_control_options[name] = {'name': name}
 
         if units is not _unspecified:
@@ -722,17 +723,15 @@ class Phase(om.Group):
         units : str or None or 0
             Units in which the design parameter is defined.  If 0, use the units declared
             for the parameter in the ODE.
-        desc : str
-            A description of the input parameter
         targets : Sequence of str or None
             Targets in the ODE to which this parameter is connected.
+        desc : str
+            A description of the input parameter
         shape : Sequence of str or None
-            Targets in the ODE to which this parameter is connected.
+            The shape of the input parameter.
         dynamic : bool
             True if the targets in the ODE may be dynamic (if the inputs are sized to the number
             of nodes) else False.
-        targets : Sequence of str or None
-            Targets in the ODE to which this parameter is connected.
         """
         self.check_parameter(name)
 
@@ -759,59 +758,6 @@ class Phase(om.Group):
 
         if dynamic is not _unspecified:
             self.user_input_parameter_options[name]['dynamic'] = dynamic
-
-    def add_traj_parameter(self, name, val=_unspecified, units=_unspecified, targets=_unspecified,
-                           desc=_unspecified, shape=_unspecified, dynamic=_unspecified):
-        """
-        Add an input parameter to the phase that is connected to an input or design parameter
-        in the parent trajectory.
-
-        Parameters
-        ----------
-        name : str
-            Name of the ODE parameter to be controlled via this input parameter.
-        val : float or ndarray
-            Default value of the design parameter at all nodes.
-        units : str or None or 0
-            Units in which the design parameter is defined.  If 0, use the units declared
-            for the parameter in the ODE.
-        desc : str
-            A description of the input parameter
-        targets : Sequence of str or None
-            Targets in the ODE to which this parameter is connected.
-        shape : Sequence of str or None
-            Targets in the ODE to which this parameter is connected.
-        dynamic : bool
-            True if the targets in the ODE may be dynamic (if the inputs are sized to the number
-            of nodes) else False.
-        targets : Sequence of str or None
-            Targets in the ODE to which this parameter is connected.
-        """
-        self.check_parameter(name)
-
-        if name not in self.user_traj_parameter_options:
-            self.user_traj_parameter_options[name] = {'name': name}
-
-        if units is not _unspecified:
-            self.user_traj_parameter_options[name]['units'] = units
-
-        if val is not _unspecified:
-            self.user_traj_parameter_options[name]['val'] = val
-
-        if desc is not _unspecified:
-            self.user_traj_parameter_options[name]['desc'] = desc
-
-        if targets is not _unspecified:
-            if isinstance(targets, string_types):
-                self.user_traj_parameter_options[name]['targets'] = (targets,)
-            else:
-                self.user_traj_parameter_options[name]['targets'] = targets
-
-        if shape is not _unspecified:
-            self.user_traj_parameter_options[name]['shape'] = shape
-
-        if dynamic is not _unspecified:
-            self.user_traj_parameter_options[name]['dynamic'] = dynamic
 
     def add_boundary_constraint(self, name, loc, constraint_name=None, units=None,
                                 shape=None, indices=None, lower=None, upper=None, equals=None,
@@ -1058,22 +1004,31 @@ class Phase(om.Group):
                     'vectorize_derivs': vectorize_derivs}
         self._objectives[name] = obj_dict
 
-    def set_time_options(self, **kwargs):
+    def set_time_options(self, units=_unspecified, fix_initial=_unspecified,
+                         fix_duration=_unspecified, input_initial=_unspecified,
+                         input_duration=_unspecified, initial_val=_unspecified,
+                         initial_bounds=_unspecified, initial_scaler=_unspecified,
+                         initial_adder=_unspecified, initial_ref0=_unspecified,
+                         initial_ref=_unspecified, duration_val=_unspecified,
+                         duration_bounds=_unspecified, duration_scaler=_unspecified,
+                         duration_adder=_unspecified, duration_ref0=_unspecified,
+                         duration_ref=_unspecified, targets=_unspecified,
+                         time_phase_targets=_unspecified, t_initial_targets=_unspecified,
+                         t_duration_targets=_unspecified):
         """
-        Set options for the time (or the integration variable) in the Phase.
+        Sets options for time in the phase.  Only those options which are specified in the
+        arguments will be updated.
 
         Parameters
         ----------
-        opt_initial : bool, deprecated
-            If True, the initial time of the phase is a design variable
-            for optimization, otherwise False. This option is deprecated in favor of fix_initial.
-        opt_duration : bool, deprecated
-            If True, the duration of the phase is a design variable
-            for optimization, otherwise False. This option is deprecated in favor of fix_duration.
+        units : str
+            The default units for time variables in the phase.  Default is 's'.
         fix_initial : bool
-            If True, the initial time of the phase is not a design variable.
+            If True, the initial time of the phase is not treated as a design variable for the
+            optimization problem.
         fix_duration : bool
-            If True, the duration of the phase is not a design variable
+            If True, the duration of the phase is not treated as a design variable for the
+            optimization problem.
         input_initial : bool
             If True, the user is expected to link phase.t_initial to an external output source.
             Providing input_initial=True makes all initial time optimization settings irrelevant.
@@ -1082,31 +1037,111 @@ class Phase(om.Group):
             Providing input_duration=True makes all time duration optimization settings irrelevant.
         initial_val : float
             Default value of the time at the start of the phase.
-        initial_bounds : Iterable of size 2
-            Tuple of (lower, upper) bounds for time at the start of the phase.
+        initial_bounds : iterable of (float, float)
+            The bounds (lower, upper) for time at the start of the phase.
         initial_scaler : float
             Scalar for the initial value of time.
         initial_adder : float
             Adder for the initial value of time.
         initial_ref0 : float
-            Zero-reference value for the initial value of time.
+            Zero-reference for the initial value of time
         initial_ref : float
-            Unit-reference value for the initial value of time.
+            Unit-reference for the initial value of time.
         duration_val : float
-            Value of the duration of time across the phase.
-        duration_bounds : Iterable of size 2
-            Tuple of (lower, upper) bounds for the duration of time
-            across the phase.
+            Default value for the time duration of the phase.
+        duration_bounds : iterable of (float, float)
+            The bounds (lower, upper) for the time duration of the phase.
         duration_scaler : float
-            Scalar for the duration of time across the phase.
+            Scaler for phase time duration.
         duration_adder : float
-            Adder for the duration of time across the phase.
+            Adder for phase time duration.
         duration_ref0 : float
-            Zero-reference value for the duration of time across the phase.
+            Zero-reference for phase time duration.
         duration_ref : float
-            Unit-reference value for the duration of time across the phase.
+            Unit-reference for phase time duration.
+        targets : iterable of str
+            Targets in the ODE for the value of current time.
+        time_phase_targets : iterable of str
+            Targets in the ODE for the value of current phase elapsed time.
+        t_initial_targets : iterable of str
+            Targets in the ODE for the value of phase initial time.
+        t_duration_targets :  iterable of str
+            Targets in the ODE for the value of phase time duration.
         """
-        self.user_time_options.update(kwargs)
+        if units is not _unspecified:
+            self.user_time_options['units'] = units
+
+        if fix_initial is not _unspecified:
+            self.user_time_options['fix_initial'] = fix_initial
+
+        if fix_duration is not _unspecified:
+            self.user_time_options['fix_duration'] = fix_duration
+
+        if input_initial is not _unspecified:
+            self.user_time_options['input_initial'] = input_initial
+
+        if input_duration is not _unspecified:
+            self.user_time_options['input_duration'] = input_duration
+
+        if initial_val is not _unspecified:
+            self.user_time_options['initial_val'] = initial_val
+
+        if initial_bounds is not _unspecified:
+            self.user_time_options['initial_bounds'] = initial_bounds
+
+        if initial_scaler is not _unspecified:
+            self.user_time_options['initial_scaler'] = initial_scaler
+
+        if initial_adder is not _unspecified:
+            self.user_time_options['initial_adder'] = initial_adder
+
+        if initial_ref0 is not _unspecified:
+            self.user_time_options['initial_ref0'] = initial_ref0
+
+        if initial_ref is not _unspecified:
+            self.user_time_options['initial_ref'] = initial_ref
+
+        if duration_val is not _unspecified:
+            self.user_time_options['duration_val'] = duration_val
+
+        if duration_bounds is not _unspecified:
+            self.user_time_options['duration_bounds'] = duration_bounds
+
+        if duration_scaler is not _unspecified:
+            self.user_time_options['duration_scaler'] = duration_scaler
+
+        if duration_adder is not _unspecified:
+            self.user_time_options['duration_adder'] = duration_adder
+
+        if duration_ref0 is not _unspecified:
+            self.user_time_options['duration_ref0'] = duration_ref0
+
+        if duration_ref is not _unspecified:
+            self.user_time_options['duration_ref'] = duration_ref
+
+        if targets is not _unspecified:
+            if isinstance(targets, string_types):
+                self.user_time_options['targets'] = (targets,)
+            else:
+                self.user_time_options['targets'] = targets
+
+        if time_phase_targets is not _unspecified:
+            if isinstance(time_phase_targets, string_types):
+                self.user_time_options['time_phase_targets'] = (time_phase_targets,)
+            else:
+                self.user_time_options['time_phase_targets'] = time_phase_targets
+
+        if t_initial_targets is not _unspecified:
+            if isinstance(t_initial_targets, string_types):
+                self.user_time_options['t_initial_targets'] = (t_initial_targets,)
+            else:
+                self.user_time_options['t_initial_targets'] = t_initial_targets
+
+        if t_duration_targets is not _unspecified:
+            if isinstance(t_duration_targets, string_types):
+                self.user_time_options['t_duration_targets'] = (t_duration_targets,)
+            else:
+                self.user_time_options['t_duration_targets'] = t_duration_targets
 
     def classify_var(self, var):
         """
@@ -1152,8 +1187,6 @@ class Phase(om.Group):
             return 'design_parameter'
         elif var in self.input_parameter_options:
             return 'input_parameter'
-        elif var in self.traj_parameter_options:
-            return 'traj_parameter'
         elif var.endswith('_rate') and var[:-5] in self.control_options:
             return 'control_rate'
         elif var.endswith('_rate2') and var[:-6] in self.control_options:
@@ -1177,7 +1210,6 @@ class Phase(om.Group):
         self.polynomial_control_options = {}
         self.design_parameter_options = {}
         self.input_parameter_options = {}
-        self.traj_parameter_options = {}
 
         # First apply any defaults set in the ode options
         if self.options['ode_class'] is not None and hasattr(self.options['ode_class'], 'ode_options'):
@@ -1223,12 +1255,6 @@ class Phase(om.Group):
                 self.input_parameter_options[ip].update(ode_options._parameters[ip])
             self.input_parameter_options[ip].update(self.user_input_parameter_options[ip])
 
-        for tp in list(self.user_traj_parameter_options.keys()):
-            self.traj_parameter_options[tp] = InputParameterOptionsDictionary()
-            if ode_options and tp in ode_options._parameters:
-                self.traj_parameter_options[tp].update(ode_options._parameters[tp])
-            self.traj_parameter_options[tp].update(self.user_traj_parameter_options[tp])
-
     def _check_ode(self):
         """
         Check that the provided ODE class meets minimum requirements.
@@ -1270,9 +1296,6 @@ class Phase(om.Group):
         if self.input_parameter_options:
             transcription.setup_input_parameters(self)
 
-        if self.traj_parameter_options:
-            transcription.setup_traj_parameters(self)
-
         transcription.setup_states(self)
         self._check_ode()
         transcription.setup_ode(self)
@@ -1306,7 +1329,8 @@ class Phase(om.Group):
                 if self.time_options[opt] is not None:
                     invalid_options.append(opt)
             if invalid_options:
-                warnings.warn('Phase time options have no effect because fix_initial=True for '
+                warnings.warn('Phase time options have no effect because fix_initial=True or '
+                              'input_initial=True for '
                               'phase \'{0}\': {1}'.format(self.name, ', '.join(invalid_options)),
                               RuntimeWarning)
 
@@ -1324,7 +1348,8 @@ class Phase(om.Group):
                 if self.time_options[opt] is not None:
                     invalid_options.append(opt)
             if invalid_options:
-                warnings.warn('Phase time options have no effect because fix_duration=True for '
+                warnings.warn('Phase time options have no effect because fix_duration=True or '
+                              'input_duration=True for '
                               'phase \'{0}\': {1}'.format(self.name, ', '.join(invalid_options)))
 
         if self.time_options['fix_duration'] and self.time_options['input_duration']:
@@ -1433,6 +1458,11 @@ class Phase(om.Group):
             raise ValueError('xs must be viewable as a 1D array')
 
         gd = self.options['transcription'].grid_data
+
+        if gd is None:
+            raise RuntimeError('interpolate cannot be called until the associated '
+                               'problem has been setup')
+
         node_locations = gd.node_ptau[gd.subset_node_indices[nodes]]
         # Affine transform xs into tau space [-1, 1]
         _xs = np.asarray(xs).ravel()
@@ -1547,11 +1577,6 @@ class Phase(om.Group):
             op = op_dict['{0}input_params.input_parameters:{1}_out'.format(phs_path, name)]
             prob['{0}input_parameters:{1}'.format(self_path, name)][...] = op['value']
 
-        # Assign traj parameter values
-        for name in phs.traj_parameter_options:
-            op = op_dict['{0}traj_params.traj_parameters:{1}_out'.format(phs_path, name)]
-            prob['{0}traj_parameters:{1}'.format(self_path, name)][...] = op['value']
-
     def simulate(self, times_per_seg=10, method='RK45', atol=1.0E-9, rtol=1.0E-9,
                  record_file=None):
         """
@@ -1603,3 +1628,12 @@ class Phase(om.Group):
         sim_prob.cleanup()
 
         return sim_prob
+
+    def set_refine_options(self, refine=False, iteration_limit=10, tol=1e-4, min_order=3, max_order=14):
+        self.refine_options['refine'] = refine
+        self.refine_options['iteration_limit'] = iteration_limit
+        self.refine_options['tolerance'] = tol
+        self.refine_options['min_order'] = min_order
+        self.refine_options['max_order'] = max_order
+
+        return

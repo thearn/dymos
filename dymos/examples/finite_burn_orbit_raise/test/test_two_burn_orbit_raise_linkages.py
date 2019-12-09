@@ -5,12 +5,12 @@ import unittest
 import matplotlib
 matplotlib.use('Agg')
 
-from dymos.utils.testing_utils import use_tempdirs
+from openmdao.utils.testing_utils import use_tempdirs
 
 
-@use_tempdirs
 class TestTwoBurnOrbitRaiseLinkages(unittest.TestCase):
 
+    @use_tempdirs
     def test_two_burn_orbit_raise_gl_rk_gl_constrained(self):
         import numpy as np
 
@@ -34,7 +34,7 @@ class TestTwoBurnOrbitRaiseLinkages(unittest.TestCase):
         p.driver.declare_coloring()
 
         traj.add_design_parameter('c', opt=False, val=1.5, units='DU/TU',
-                                  custom_targets={'burn1': ['c'], 'coast': ['c'], 'burn2': ['c']})
+                                  targets={'burn1': ['c'], 'coast': ['c'], 'burn2': ['c']})
 
         # First Phase (burn)
 

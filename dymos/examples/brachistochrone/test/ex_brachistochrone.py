@@ -69,7 +69,7 @@ def brachistochrone_min_time(transcription='gauss-lobatto', num_segments=8, tran
     phase.add_objective('time_phase', loc='final', scaler=10)
 
     p.model.linear_solver = om.DirectSolver()
-    p.setup(check=True)
+    p.setup(check=['unconnected_inputs'])
 
     p['phase0.t_initial'] = 0.0
     p['phase0.t_duration'] = 2.0
@@ -128,7 +128,4 @@ def brachistochrone_min_time(transcription='gauss-lobatto', num_segments=8, tran
 if __name__ == '__main__':
     brachistochrone_min_time(transcription='runge-kutta', num_segments=50,
                              transcription_order=3, compressed=True,
-                             optimizer='SNOPT')
-    # brachistochrone_min_time(transcription='radau-ps', num_segments=10, run_driver=True,
-    #                          top_level_jacobian='csc', transcription_order=3, compressed=True,
-    #                          optimizer='SNOPT')
+                             optimizer='SLSQP')

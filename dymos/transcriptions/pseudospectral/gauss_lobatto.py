@@ -203,6 +203,16 @@ class GaussLobatto(PseudospectralBase):
                           'state_interp.staterate_disc:{0}'.format(name),
                           src_indices=src_idxs)
 
+            phase.connect(rate_path,
+                          'interleave_comp.disc_values:state_rates:{0}'.format(name),
+                          src_indices=src_idxs)
+
+            rate_path, src_idxs = self.get_rate_source_path(name, nodes='col', phase=phase)
+
+            phase.connect(rate_path,
+                          'interleave_comp.col_values:state_rates:{0}'.format(name),
+                          src_indices=src_idxs)
+
         #
         # Setup the interleave comp to interleave all states, any path constraints from the ODE,
         # and any timeseries outputs from the ODE.
@@ -215,14 +225,18 @@ class GaussLobatto(PseudospectralBase):
         map_input_indices_to_disc = self.grid_data.input_maps['state_input_to_disc']
 
         interleave_comp = GaussLobattoInterleaveComp(grid_data=self.grid_data)
-
+        time_units = phase.time_options['units']
         #
         # First do the states
         #
         for state_name, options in iteritems(phase.state_options):
             shape = options['shape']
             units = options['units']
+            rate_source = options['rate_source']
+
             interleave_comp.add_var('states:{0}'.format(state_name), shape, units)
+            interleave_comp.add_var('state_rates:{0}'.format(state_name), shape,
+                                    get_rate_units(options['units'], time_units))
 
             size = np.prod(options['shape'])
             src_idxs_mat = np.reshape(np.arange(size * num_input_nodes, dtype=int),
@@ -472,6 +486,13 @@ class GaussLobatto(PseudospectralBase):
                 phase.connect(src_name='interleave_comp.all_values:states:{0}'.format(state_name),
                               tgt_name='{0}.input_values:states:{1}'.format(name, state_name))
 
+                timeseries_comp._add_timeseries_output('state_rates:{0}'.format(state_name),
+                                                       var_class=phase.classify_var(options['rate_source']),
+                                                       shape=options['shape'],
+                                                       units=get_rate_units(options['units'], time_units))
+                phase.connect(src_name='interleave_comp.all_values:state_rates:{0}'.format(state_name),
+                              tgt_name='{0}.input_values:state_rates:{1}'.format(name, state_name))
+
             for control_name, options in iteritems(phase.control_options):
                 control_units = options['units']
 
@@ -564,20 +585,6 @@ class GaussLobatto(PseudospectralBase):
 
                 phase.connect(src_name='input_parameters:{0}_out'.format(param_name),
                               tgt_name='{0}.input_values:input_parameters:{1}'.format(name, param_name),
-                              src_indices=src_idxs, flat_src_indices=True)
-
-            for param_name, options in iteritems(phase.traj_parameter_options):
-                units = options['units']
-                timeseries_comp._add_timeseries_output('traj_parameters:{0}'.format(param_name),
-                                                       var_class=phase.classify_var(param_name),
-                                                       shape=options['shape'],
-                                                       units=units)
-
-                src_idxs_raw = np.zeros(self.grid_data.subset_num_nodes['all'], dtype=int)
-                src_idxs = get_src_indices_by_row(src_idxs_raw, options['shape'])
-
-                phase.connect(src_name='traj_parameters:{0}_out'.format(param_name),
-                              tgt_name='{0}.input_values:traj_parameters:{1}'.format(name, param_name),
                               src_indices=src_idxs, flat_src_indices=True)
 
             for var, options in iteritems(phase._timeseries[name]['outputs']):
@@ -700,7 +707,6 @@ class GaussLobatto(PseudospectralBase):
 
         parameter_options = phase.design_parameter_options.copy()
         parameter_options.update(phase.input_parameter_options)
-        parameter_options.update(phase.traj_parameter_options)
         parameter_options.update(phase.control_options)
 
         if name in parameter_options:
